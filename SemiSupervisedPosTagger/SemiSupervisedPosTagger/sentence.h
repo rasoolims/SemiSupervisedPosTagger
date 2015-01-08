@@ -26,6 +26,8 @@ class sentence {
 		vector<bool> contains_hyphen;
 		vector<bool> contains_uppercase_letter;
 
+		vector<int>* get_features(int position, int prev_tag, int prev2_tag,int feat_size);
+
 		sentence(vector<string> words,vector<string> tags,int length, unordered_map<string,int> string_dict);
 		~sentence();
 };

@@ -25,7 +25,7 @@ void unit_test::test_perceptron() {
     perceptron.increment_iteration();
     cout<< perceptron.size()<<endl;
 
-    long features[10];
+    int features[10];
     features[2]=87;
 
     int arr_size= sizeof(features)/ sizeof(long);
@@ -80,4 +80,20 @@ void unit_test::test_tag_file_reader(string file_path) {
 	cout << "create sentences"<<endl;
 	vector<sentence> sentences=file_manager::read_sentences(file_path, indexMaps.string_dic);
 	cout << "done!"<<endl;
+
+	sentence sen=sentences.at(1);
+	vector<int>* features1=	sen.get_features(2, 4, 5,12);
+	vector<int>* features2=	sen.get_features(-1, 4, 5,12);
+	vector<int>* features3=	sen.get_features(0, 4, 5,12);
+	vector<int>* features4=	sen.get_features(5, 4, 5,12);
+	vector<int>* features5=	sen.get_features(3, 4, 5,12);
+
+	/*
+	//todo ask if this is needed (if uncommented, will throw exception)
+	delete features1;
+	delete features2;
+	delete  features3;
+	delete  features4;
+	delete  features5;
+    */
 }

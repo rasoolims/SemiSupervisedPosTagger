@@ -13,7 +13,9 @@ index_maps file_manager::create_indexMaps(string file_path) {
 	set<string> words;
 	set<string> tags;
 
-	int index = 0;
+	// 0 for <start>
+	// 1 for <end>
+	int index = 2;
 	unordered_map<string, int> string_dic;
 	vector<string> reverse_dict;
 

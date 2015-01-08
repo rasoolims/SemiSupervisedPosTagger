@@ -7,20 +7,20 @@
 #define __AveragedPerceptron_H_
 
 #include <unordered_map>
+#include "vector"
 
 using namespace std;
-
 class averaged_perceptron {
 private:
     /**
     a two-dimensional map for the features
-    the key for the features are long (hashed values from strings)
+    the key for the features are int (hashed values from strings)
     the value is a floating point
     the first dimension is the tag_size and the second dimension is the feat_size
     **/
-    unordered_map<long, float>** weights;
+    unordered_map<int, float>** weights;
 
-    unordered_map<long, float>** averaged_weights;
+    unordered_map<int, float>** averaged_weights;
 
     int tag_size;
     int feat_size;
@@ -30,7 +30,7 @@ public:
 
     averaged_perceptron(const int tag_size, const int feat_size);
 
-    averaged_perceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights);
+    averaged_perceptron(const int tag_size, const int feat_size, unordered_map<int, float> **averaged_weights);
 
     ~averaged_perceptron(){};
 
@@ -40,11 +40,13 @@ public:
 
     void increment_iteration();
 
-    void change_weight(const int tag_index, const int feat_index, const long feature, const float change);
+    void change_weight(const int tag_index, const int feat_index, const int feature, const float change);
 
-    float score(const long features[],const int arr_size, const int tag_index, const bool is_decode);
+    float score(const int features[],const int arr_size, const int tag_index, const bool is_decode);
 
-    int size();
+	float score(const vector<int> features[],const int arr_size, const int tag_index, const bool is_decode);
+
+	int size();
 };
 
 

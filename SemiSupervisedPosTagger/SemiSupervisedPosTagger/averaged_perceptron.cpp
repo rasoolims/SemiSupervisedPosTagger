@@ -9,21 +9,21 @@
 #include "assert.h"
 
 averaged_perceptron::averaged_perceptron(const int tag_size, const int feat_size) {
-    weights = new unordered_map<long, float> *[tag_size];
-    averaged_weights = new unordered_map<long, float> *[tag_size];
+    weights = new unordered_map<int, float> *[tag_size];
+    averaged_weights = new unordered_map<int, float> *[tag_size];
     for (int i = 0; i < tag_size; i++) {
-        weights[i] = new unordered_map<long, float>[feat_size];
-        averaged_weights[i] = new unordered_map<long, float>[feat_size];
+        weights[i] = new unordered_map<int, float>[feat_size];
+        averaged_weights[i] = new unordered_map<int, float>[feat_size];
     }
     iteration = 1;
     this->tag_size=tag_size;
     this->feat_size=feat_size;
 }
 
-averaged_perceptron::averaged_perceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights) {
-    weights = new unordered_map<long, float> *[tag_size];
+averaged_perceptron::averaged_perceptron(const int tag_size, const int feat_size, unordered_map<int, float> **averaged_weights) {
+    weights = new unordered_map<int, float> *[tag_size];
     for (int i = 0; i < tag_size; i++)
-        weights[i] = new unordered_map<long, float>[feat_size];
+        weights[i] = new unordered_map<int, float>[feat_size];
     iteration = 1;
     this->averaged_weights = averaged_weights;
     this->tag_size=tag_size;
@@ -39,13 +39,13 @@ averaged_perceptron *averaged_perceptron::load_model(const char *file_path) {
     reader >> tag_size;
     reader >> feat_size;
 
-    unordered_map<long, float>** averaged_weights = new unordered_map<long, float> *[tag_size];
+    unordered_map<int, float>** averaged_weights = new unordered_map<int, float> *[tag_size];
     for (int i = 0; i < tag_size; i++) {
-        averaged_weights[i] = new unordered_map<long, float>[feat_size];
+        averaged_weights[i] = new unordered_map<int, float>[feat_size];
     }
 
     int t_index, f_index;
-    long feat;
+    int feat;
     float value;
     while (!reader.eof()) {
         reader >> t_index;
@@ -85,7 +85,7 @@ void averaged_perceptron::increment_iteration() {
     iteration++;
 }
 
-void averaged_perceptron::change_weight(const int tag_index, const int feat_index, const long feature, const float change) {
+void averaged_perceptron::change_weight(const int tag_index, const int feat_index, const int feature, const float change) {
     if(weights[tag_index][feat_index].count(feature)>0)
         weights[tag_index][feat_index][feature]=weights[tag_index][feat_index][feature]+change;
     else
@@ -98,11 +98,11 @@ void averaged_perceptron::change_weight(const int tag_index, const int feat_inde
 }
 
 // returns the score of the features given the tag index; arr_size is for checking the size of the array
-float averaged_perceptron::score(long const features[], const int arr_size, const int tag_index, const bool is_decode) {
+float averaged_perceptron::score(int const features[], const int arr_size, const int tag_index, const bool is_decode) {
     assert(arr_size==feat_size);
 
     float score=0;
-    unordered_map<long,float>* map=is_decode?averaged_weights[tag_index]:weights[tag_index];
+    unordered_map<int,float>* map=is_decode?averaged_weights[tag_index]:weights[tag_index];
 
     for(int i=0;i<feat_size;i++){
         if(map[i].count(features[i])>0)
@@ -110,6 +110,23 @@ float averaged_perceptron::score(long const features[], const int arr_size, cons
     }
 
     return score;
+}
+
+
+float averaged_perceptron:: score(const vector<int> features[],const int arr_size, const int tag_index, const bool is_decode) {
+	assert(arr_size==feat_size);
+
+	float score=0;
+	unordered_map<int,float>* map=is_decode?averaged_weights[tag_index]:weights[tag_index];
+
+	for(int i=0;i<feat_size;i++){
+		for(int j=0;j<features[i].size();j++) {
+			if (map[i].count(features[i].at(j)) > 0)
+				score += map[i][features[i].at(j)];
+		}
+	}
+
+	return score;
 }
 
 int averaged_perceptron::size() {
