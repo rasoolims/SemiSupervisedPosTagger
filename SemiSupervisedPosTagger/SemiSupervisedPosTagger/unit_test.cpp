@@ -88,12 +88,9 @@ void unit_test::test_tag_file_reader(string file_path) {
 	vector<int>* features4=	sen.get_features(5, 4, 5,12);
 	vector<int>* features5=	sen.get_features(3, 4, 5,12);
 
-	/*
-	//todo ask if this is needed (if uncommented, will throw exception)
-	delete features1;
-	delete features2;
-	delete  features3;
-	delete  features4;
-	delete  features5;
-    */
+	delete [] features1;
+	delete [] features2;
+	delete  [] features3;
+	delete  [] features4;
+	delete  [] features5;
 }
