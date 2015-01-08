@@ -7,17 +7,19 @@
 //
 
 #include <iostream>
-#include "AveragedPerceptron.h"
-#include "UnitTest.h"
+#include "averaged_perceptron.h"
+#include "unit_test.h"
 
 using namespace std;
 int main(int argc, const char * argv[])
 {
     // insert code here...
     cout << "Hello, World!\n";
-    UnitTest unitTest;
-    unitTest.test_perceptron();
+    unit_test unitTest;
+    //unitTest.test_perceptron();
 
+	//unitTest.test_utf8("/tmp/utf82.txt");
+	unitTest.test_tag_file_reader("/tmp/utf82.txt");
 
-    return 0;
+	return 0;
 }

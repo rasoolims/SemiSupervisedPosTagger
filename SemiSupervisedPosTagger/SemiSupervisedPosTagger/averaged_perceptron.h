@@ -3,7 +3,6 @@
 // Copyright (c) 2015 Mohammad Sadegh Rasooli. All rights reserved.
 //
 
-
 #ifndef __AveragedPerceptron_H_
 #define __AveragedPerceptron_H_
 
@@ -11,7 +10,7 @@
 
 using namespace std;
 
-class AveragedPerceptron {
+class averaged_perceptron {
 private:
     /**
     a two-dimensional map for the features
@@ -29,13 +28,13 @@ private:
 public:
     int iteration;
 
-    AveragedPerceptron(const int tag_size, const int feat_size);
+    averaged_perceptron(const int tag_size, const int feat_size);
 
-    AveragedPerceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights);
+    averaged_perceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights);
 
-    ~AveragedPerceptron(){};
+    ~averaged_perceptron(){};
 
-    static AveragedPerceptron* load_model(const char *file_path);
+    static averaged_perceptron * load_model(const char *file_path);
 
     void save_model(const char *file_path);
 

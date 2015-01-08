@@ -3,13 +3,12 @@
 // Copyright (c) 2015 Mohammad Sadegh Rasooli. All rights reserved.
 //
 
-#import <map>
 #include <iostream>
-#import <fstream>
-#include "AveragedPerceptron.h"
+#include <fstream>
+#include "averaged_perceptron.h"
 #include "assert.h"
 
-AveragedPerceptron::AveragedPerceptron(const int tag_size, const int feat_size) {
+averaged_perceptron::averaged_perceptron(const int tag_size, const int feat_size) {
     weights = new unordered_map<long, float> *[tag_size];
     averaged_weights = new unordered_map<long, float> *[tag_size];
     for (int i = 0; i < tag_size; i++) {
@@ -21,7 +20,7 @@ AveragedPerceptron::AveragedPerceptron(const int tag_size, const int feat_size) 
     this->feat_size=feat_size;
 }
 
-AveragedPerceptron::AveragedPerceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights) {
+averaged_perceptron::averaged_perceptron(const int tag_size, const int feat_size, unordered_map<long, float> **averaged_weights) {
     weights = new unordered_map<long, float> *[tag_size];
     for (int i = 0; i < tag_size; i++)
         weights[i] = new unordered_map<long, float>[feat_size];
@@ -31,7 +30,7 @@ AveragedPerceptron::AveragedPerceptron(const int tag_size, const int feat_size, 
     this->feat_size=feat_size;
 }
 
-AveragedPerceptron* AveragedPerceptron::load_model(const char *file_path) {
+averaged_perceptron *averaged_perceptron::load_model(const char *file_path) {
     ifstream reader(file_path);
     if(!reader)
         cout<<"file does not exist!"<<endl;
@@ -56,10 +55,10 @@ AveragedPerceptron* AveragedPerceptron::load_model(const char *file_path) {
         averaged_weights[t_index][f_index][feat]=value;
     }
     reader.close();
-    return new AveragedPerceptron(tag_size, feat_size,averaged_weights);
+    return new averaged_perceptron(tag_size, feat_size,averaged_weights);
 }
 
-void AveragedPerceptron::save_model(const char *file_path) {
+void averaged_perceptron::save_model(const char *file_path) {
     ofstream writer;
     writer.open(file_path,ios::binary|ios::out);
     writer<<tag_size<<endl;
@@ -82,11 +81,11 @@ void AveragedPerceptron::save_model(const char *file_path) {
     writer.close();
 }
 
-void AveragedPerceptron::increment_iteration() {
+void averaged_perceptron::increment_iteration() {
     iteration++;
 }
 
-void AveragedPerceptron::change_weight(const int tag_index, const int feat_index, const long feature, const float change) {
+void averaged_perceptron::change_weight(const int tag_index, const int feat_index, const long feature, const float change) {
     if(weights[tag_index][feat_index].count(feature)>0)
         weights[tag_index][feat_index][feature]=weights[tag_index][feat_index][feature]+change;
     else
@@ -99,7 +98,7 @@ void AveragedPerceptron::change_weight(const int tag_index, const int feat_index
 }
 
 // returns the score of the features given the tag index; arr_size is for checking the size of the array
-float AveragedPerceptron::score(long const features[], const int arr_size, const int tag_index, const bool is_decode) {
+float averaged_perceptron::score(long const features[], const int arr_size, const int tag_index, const bool is_decode) {
     assert(arr_size==feat_size);
 
     float score=0;
@@ -113,7 +112,7 @@ float AveragedPerceptron::score(long const features[], const int arr_size, const
     return score;
 }
 
-int AveragedPerceptron::size() {
+int averaged_perceptron::size() {
     int s=0;
     for(int i=0;i< tag_size;i++)
         for(int j=0;j<feat_size;j++)

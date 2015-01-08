@@ -7,11 +7,13 @@
 #ifndef __UnitTest_H_
 #define __UnitTest_H_
 
-
-class UnitTest {
+using namespace std;
+class unit_test {
 public:
-    UnitTest();
+    unit_test();
     void test_perceptron();
+	void test_utf8(string file_path);
+	void test_tag_file_reader(string file_path);
 };
 
 
