@@ -14,6 +14,18 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 	// pai score values
 	float pai[len][tag_size][tag_size];
 	float emission_score[len - 1][tag_size];
+	float bigram_score[tag_size][tag_size];
+	float trigram_score[tag_size][tag_size][tag_size];
+
+	for (int v = 0; v < tag_size; v++) {
+		for (int u = 0; u < tag_size; u++) {
+			bigram_score[u][v] = perceptron.score(v, feat_size - 2, u, is_decode);
+			for(int w = 0; w < tag_size; w++) {
+				int bigram = (w << 10) + u;
+				trigram_score[w][u][v] = perceptron.score(v, feat_size - 1, bigram, is_decode);
+			}
+		}
+	}
 
 	for (int position = 0; position < sentence.length; position++) {
 		vector<int> emission_features = sentence.getـ_emission_features(position);
@@ -27,8 +39,8 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 
 	// initialization
 	pai[0][0][0] = 0;
-	for (int u = 2; u < tag_size; u++) {
-		for (int v = 2; v < tag_size; v++) {
+	for (int u = 1; u < tag_size; u++) {
+		for (int v = 1; v < tag_size; v++) {
 			pai[0][u][v] = -inf;
 		}
 	}
@@ -39,14 +51,11 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 				float max_val = -inf;
 				int argmax = 0;
 
-				float bigram_score = perceptron.score(v, feat_size - 2, u, is_decode);
-				for (int w = 1; w < tag_size; w++) {
-					if (w == 1 && k > 1)
-						continue;
-					int bigram = (w << 10) + u;
-					float trigram_score = perceptron.score(v, feat_size - 1, bigram, is_decode);
 
-					float score = trigram_score + bigram_score + emission_score[k - 1][v] + pai[k - 1][w][u];
+				for (int w = 0; w < tag_size; w++) {
+					if (w == 1 || (w==0 && k>1) || (k==1 && w!=0))
+						continue;
+					float score = trigram_score[w][u][v] + bigram_score[u][v] + emission_score[k - 1][v] + pai[k - 1][w][u];
 					if (score > max_val) {
 						max_val = score;
 						argmax = w;
@@ -63,10 +72,7 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 	float max_val = -inf;
 	for (int u = 2; u < tag_size; u++) {
 		for (int v = 2; v < tag_size; v++) {
-			float bigram_score = perceptron.score(1, feat_size - 2, v, is_decode);
-			int bigram = (u << 10) + v;
-			float trigram_score = perceptron.score(1, feat_size - 1, bigram, is_decode);
-			float score = bigram_score + trigram_score + pai[len - 1][u][v];
+			float score = bigram_score[v][1] + trigram_score[u][v][1] + pai[len - 1][u][v];
 			if (score > max_val) {
 				max_val = score;
 				y1 = u;

@@ -13,14 +13,6 @@
 using namespace std;
 int main(int argc, const char * argv[])
 {
-    // insert code here...
-    cout << "Hello, World!\n";
-    // unit_test unitTest;
-    //unitTest.test_perceptron();
-
-	//unitTest.test_utf8("/tmp/utf82.txt");
-	//unitTest.test_tag_file_reader("/tmp/utf82.txt","/");
-
 	string train_path="/Users/msr/Projects/SemiSupervisedPosTagger/SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/train.tag";
 	string dev_path= "/Users/msr/Projects/SemiSupervisedPosTagger/SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/dev.tag";
 	string model_path="/tmp/model";

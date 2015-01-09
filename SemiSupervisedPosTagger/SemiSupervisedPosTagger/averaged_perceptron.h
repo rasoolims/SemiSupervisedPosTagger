@@ -22,10 +22,10 @@ private:
 
     unordered_map<int, float>** averaged_weights;
 
-    int tag_size;
 
 public:
     int iteration;
+	int tag_size;
 	int feat_size;
 
 	averaged_perceptron(const int tag_size, const int feat_size);
@@ -45,6 +45,8 @@ public:
     float score(const vector<int> features, const int tag_index, const bool is_decode);
 
 	float score(const int tag_index, const int feat_index, const int feat, const bool is_decode);
+
+	unordered_map<int, float>** get_averaged_weights();
 
 	int size();
 };

@@ -115,6 +115,31 @@ float averaged_perceptron::score(vector<int> const features, const int tag_index
 }
 
 
+unordered_map<int, float> **averaged_perceptron::get_averaged_weights() {
+	unordered_map<int,float>** avg  = new unordered_map<int, float> *[tag_size];
+	for (int i = 0; i < tag_size; i++) {
+		avg[i] = new unordered_map<int, float>[feat_size];
+	}
+
+	for(int i=0;i<tag_size;i++){
+		for(int j=0;j<feat_size;j++){
+			unordered_map<int,float> w=weights[i][j];
+			unordered_map<int,float> a=averaged_weights[i][j];
+
+			for(unordered_map<int,float>::iterator iter=w.begin();iter!=w.end();++iter){
+				int key=iter->first;
+				float val=iter->second;
+				float a_val=a[key];
+
+				float new_val=val-(a_val/iteration);
+				if(new_val!=0.0f)
+					avg[i][j][key]=new_val;
+			}
+		}
+	}
+	return avg;
+}
+
 float averaged_perceptron::score(const int tag_index, const int feat_index, const int feat, const bool is_decode) {
 	if(feat==-1)
 		return 0;

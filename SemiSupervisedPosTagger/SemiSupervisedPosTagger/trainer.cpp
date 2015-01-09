@@ -8,7 +8,10 @@
 #include "viterbi.h"
 #include "assert.h"
 #include "iostream"
+#include "inf_struct.h"
+#include "time.h"
 
+using namespace std;
 void trainer::train(string train_file_path, string dev_file_path, string model_path, int feat_size,const string delim, int max_iterations) {
 	index_maps maps = file_manager::create_indexMaps(train_file_path,delim);   //todo maps should be saved to memory
 
@@ -114,6 +117,49 @@ void trainer::train(string train_file_path, string dev_file_path, string model_p
 			classifier.increment_iteration();
 		}
 		cout <<endl<<"correct/all:"<< corr<<"/"<<all<<" "<<flush;
+
+		inf_struct info(classifier);
+		averaged_perceptron perceptron(classifier.tag_size,classifier.feat_size,info.averaged_weights);
+		cout <<"\ndecoding..."<<flush;
+		corr=0;
+		all=0;
+		int exact=0;
+
+		auto start=chrono::high_resolution_clock::now();
+
+		for (int s = 0; s < dev_sentences.size(); s++) {
+			sentence sen = dev_sentences.at(s);
+			if ((s + 1) % 10 == 0)
+				cout << (s + 1) << " " << flush;
+			vector<int> predicted_tags = viterbi::viterbi_third_order(sen, perceptron, maps.tag_size, feat_size, true);
+
+			assert(predicted_tags.size() == sen.tags.size());
+
+			bool same = true;
+			for (int t = 0; t < predicted_tags.size(); t++) {
+				int predicted = predicted_tags.at(t);
+				int gold = sen.tags.at(t);
+				if (predicted != gold) {
+					same = false;
+				} else
+					corr++;
+				all++;
+			}
+			if(same)
+				exact++;
+		}
+		auto end=chrono::high_resolution_clock::now();
+
+		auto duration=chrono::duration<double, std::milli>(end-start).count()/dev_sentences.size();
+		cout << "\nduration: "<<duration<<endl;
+
+		float accuracy=(float)corr*100.0/all;
+		float exact_match =(float) exact*100/dev_sentences.size();
+		cout <<"accuracy is "<<accuracy<<endl;
+		cout <<"exact match is "<<exact_match<<endl;
+
+		//delete perceptron;
+		//delete  info;
 	}
 }
 
