@@ -86,6 +86,9 @@ void averaged_perceptron::increment_iteration() {
 }
 
 void averaged_perceptron::change_weight(const int tag_index, const int feat_index, const int feature, const float change) {
+	if(feature==-1)
+		return;
+
     if(weights[tag_index][feat_index].count(feature)>0)
         weights[tag_index][feat_index][feature]=weights[tag_index][feat_index][feature]+change;
     else
@@ -98,35 +101,29 @@ void averaged_perceptron::change_weight(const int tag_index, const int feat_inde
 }
 
 // returns the score of the features given the tag index; arr_size is for checking the size of the array
-float averaged_perceptron::score(int const features[], const int arr_size, const int tag_index, const bool is_decode) {
-    assert(arr_size==feat_size);
-
+float averaged_perceptron::score(vector<int> const features, const int tag_index, const bool is_decode) {
     float score=0;
     unordered_map<int,float>* map=is_decode?averaged_weights[tag_index]:weights[tag_index];
 
-    for(int i=0;i<feat_size;i++){
-        if(map[i].count(features[i])>0)
-            score+=map[i][features[i]];
+    for(int i=0;i<features.size();i++){
+	    int feat=features.at(i);
+        if(feat!=-1 && map[i].count(feat)>0)
+            score+=map[i][feat];
     }
 
     return score;
 }
 
 
-float averaged_perceptron:: score(const vector<int> features[],const int arr_size, const int tag_index, const bool is_decode) {
-	assert(arr_size==feat_size);
-
-	float score=0;
+float averaged_perceptron::score(const int tag_index, const int feat_index, const int feat, const bool is_decode) {
+	if(feat==-1)
+		return 0;
 	unordered_map<int,float>* map=is_decode?averaged_weights[tag_index]:weights[tag_index];
 
-	for(int i=0;i<feat_size;i++){
-		for(int j=0;j<features[i].size();j++) {
-			if (map[i].count(features[i].at(j)) > 0)
-				score += map[i][features[i].at(j)];
-		}
-	}
+	if(map[feat_index].count(feat)>0)
+		return map[feat_index][feat];
 
-	return score;
+	return 0;
 }
 
 int averaged_perceptron::size() {

@@ -6,3 +6,17 @@ SemiSupervisedPosTagger/.idea/.name
 SemiSupervisedPosTagger/SemiSupervisedPosTagger.xcodeproj/project.pbxproj
 
 SemiSupervisedPosTagger/SemiSupervisedPosTagger.xcodeproj/xcuserdata/msr.xcuserdatad/xcschemes/SemiSupervisedPosTagger.xcscheme
+
+SemiSupervisedPosTagger/build/SemiSupervisedPosTagger.build/Release/SemiSupervisedPosTagger.build/build-state~.dat
+
+SemiSupervisedPosTagger/build/SemiSupervisedPosTagger.build/Release/SemiSupervisedPosTagger.build/build-state.dat
+
+SemiSupervisedPosTagger/build/SemiSupervisedPosTagger.build/Release/SemiSupervisedPosTagger.build/SemiSupervisedPosTagger.dep
+
+SemiSupervisedPosTagger/build/SemiSupervisedPosTagger.build/Release/SemiSupervisedPosTagger.build/SemiSupervisedPosTagger~.dep
+
+SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/dev.tag
+
+SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/corpus.tok.clean.tag.en
+
+SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/train.tag

@@ -6,21 +6,29 @@
 #include "file_manager.h"
 #include "iostream"
 #include "set"
-#import "unicode_manager.h"
+#include "unicode_manager.h"
 
 using namespace std;
-index_maps file_manager::create_indexMaps(string file_path) {
+index_maps file_manager::create_indexMaps(string file_path,const string delim) {
+	cout << "creating index maps...";
 	set<string> words;
 	set<string> tags;
 
 	// 0 for <start>
 	// 1 for <end>
 	int index = 2;
+	int tag_size;
 	unordered_map<string, int> string_dic;
 	vector<string> reverse_dict;
 
 	// first indexing the tags
 	ifstream reader(file_path);
+	if(!reader.good()){
+		cout << "file "<< file_path<< " does not exit"<<endl;
+		throw exception();
+	}
+
+
 	while (!reader.eof()) {
 		string line;
 		getline(reader, line);
@@ -30,7 +38,7 @@ index_maps file_manager::create_indexMaps(string file_path) {
 				string sub;
 				iss >> sub;
 				if (sub.length() > 0) {
-					string tag = sub.substr(sub.rfind("/") + 1);
+					string tag = sub.substr(sub.rfind(delim) + 1);
 					tags.insert(tag);
 				}
 			} while (iss);
@@ -46,6 +54,7 @@ index_maps file_manager::create_indexMaps(string file_path) {
 			reverse_dict.push_back(tag);
 		}
 	}
+	tag_size=index;
 
 	// then indexing other strings
 	reader.open(file_path);
@@ -58,7 +67,7 @@ index_maps file_manager::create_indexMaps(string file_path) {
 				string sub;
 				iss >> sub;
 				if (sub.length() > 0) {
-					string word = sub.substr(0, sub.rfind("/"));
+					string word = sub.substr(0, sub.rfind(delim));
 					words.insert(word);
 
 					vector<string> prefixes = unicode_manager::prefixes(word, 4);
@@ -84,25 +93,31 @@ index_maps file_manager::create_indexMaps(string file_path) {
 		}
 	}
 
-
-	return index_maps(string_dic, reverse_dict);
+	cout << "done!\n";
+	return index_maps(string_dic, reverse_dict,tag_size);
 }
 
-vector<sentence> file_manager::read_sentences(string file_path, unordered_map<string, int> string_dict) {
+vector<sentence> file_manager::read_sentences(string file_path, unordered_map<string, int> string_dict,const string delim) {
 	vector<sentence> sentences;
 	ifstream reader(file_path);
+
+	if(!reader.good()){
+		cout << "file "<< file_path<< " does not exit"<<endl;
+		throw exception();
+	}
+
 	while (!reader.eof()) {
 		string line;
 		getline(reader, line);
 		if (line.length() > 0) {
-			sentences.push_back(get_sentence_from_line(line, string_dict));
+			sentences.push_back(get_sentence_from_line(line, string_dict,delim));
 		}
 	}
 
 	return sentences;
 }
 
-sentence file_manager::get_sentence_from_line(const string line, unordered_map<string, int> string_dict) {
+sentence file_manager::get_sentence_from_line(const string line, unordered_map<string, int> string_dict,const string delim) {
 	istringstream iss(line);
 	vector<string> words;
 	vector<string> tags;
@@ -111,8 +126,8 @@ sentence file_manager::get_sentence_from_line(const string line, unordered_map<s
 		string sub;
 		iss >> sub;
 		if (sub.length() > 0) {
-			string word = sub.substr(0, sub.rfind("/"));
-			string tag = sub.substr(sub.rfind("/") + 1, sub.length());
+			string word = sub.substr(0, sub.rfind(delim));
+			string tag = sub.substr(sub.rfind(delim) + 1, sub.length());
 			words.push_back(word);
 			tags.push_back(tag);
 			len++;

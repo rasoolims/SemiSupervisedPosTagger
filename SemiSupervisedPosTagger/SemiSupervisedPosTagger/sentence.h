@@ -19,14 +19,15 @@ class sentence {
 		vector<int>  tags;
 
 		// for at most four different lengths
-		vector<vector<int>>  prefixes;
-		vector<vector<int>>  suffixes;
+		vector<int>  prefixes[4];
+		vector<int>  suffixes[4];
 
 		vector<bool>  contains_number;
 		vector<bool> contains_hyphen;
 		vector<bool> contains_uppercase_letter;
 
-		vector<int>* get_features(int position, int prev_tag, int prev2_tag,int feat_size);
+		vector<int> get_features(const int position, const  int prev2_tag,const int prev_tag);
+		vector<int> getـ_emission_features(const int position);
 
 		sentence(vector<string> words,vector<string> tags,int length, unordered_map<string,int> string_dict);
 		~sentence();

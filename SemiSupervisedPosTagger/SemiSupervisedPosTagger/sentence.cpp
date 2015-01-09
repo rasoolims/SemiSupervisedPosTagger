@@ -26,26 +26,27 @@ sentence::sentence(vector<string> words, vector<string> tags, int length, unorde
 		vector<string> prefixes = unicode_manager::prefixes(word, 4);
 		vector<string> suffixes = unicode_manager::suffixes(word, 4);
 
-		vector<int> int_prefixes;
-		vector<int> int_suffixes;
-
 		for(int i=0;i<prefixes.size();i++) {
-			string prefix=prefixes.at(i);
-			if(string_dict.count(prefix)>0)
-				int_prefixes.push_back(string_dict[prefix]);
+			string prefix = prefixes.at(i);
+			if (string_dict.count(prefix) > 0)
+				this->prefixes[i].push_back(string_dict[prefix]);
 			else
-				int_prefixes.push_back(-1);
+				this->prefixes[i].push_back(-1);
+		}
+		for(int i=prefixes.size();i<4;i++){
+			this->prefixes[i].push_back(-1);
 		}
 
 		for(int i=0;i<suffixes.size();i++) {
 			string suffix=suffixes.at(i);
-			if(string_dict.count(suffix)>0)
-				int_suffixes.push_back(string_dict[suffix]);
+			if (string_dict.count(suffix) > 0)
+				this->suffixes[i].push_back(string_dict[suffix]);
 			else
-				int_suffixes.push_back(-1);
+				this->suffixes[i].push_back(-1);
 		}
-		this->prefixes.push_back(int_prefixes);
-		this->suffixes.push_back(int_suffixes);
+		for(int i=suffixes.size();i<4;i++){
+			this->suffixes[i].push_back(-1);
+		}
 
 		bool is_uppercase=false;
 		bool has_number=false;
@@ -69,11 +70,8 @@ sentence::sentence(vector<string> words, vector<string> tags, int length, unorde
 }
 
 
-// the features are identical to Ratnaparkhi (1996) but as in Collins (2002) rare words are ignored
-// all features are used for both rare and frequent words
-vector<int>* sentence::get_features(int position, int prev_tag, int prev2_tag,int feat_size) {
-	vector<int>* features=new vector<int>[feat_size];
-
+vector<int> sentence::getـ_emission_features(const int position) {
+	vector<int> features;
 
 	int current_word=0;
 	if(position>=0 && position<length)
@@ -81,52 +79,38 @@ vector<int>* sentence::get_features(int position, int prev_tag, int prev2_tag,in
 	else if(position>=length)
 		current_word=1;
 
-	int index=0;
-
-
 	// current word
-	features[index++].push_back(current_word);
+	features.push_back(current_word);
 
-	//prefixes
+	//prefixes and suffixes
 	if(position>=0 && position<length) {
-		vector<int> pr=prefixes.at(position);
-		for (int i = 0; i < pr.size();i++)
-			features[index].push_back(pr.at(i));
+		for(int i=0;i<4;i++) {
+			features.push_back(prefixes[i].at(position));
+			features.push_back(suffixes[i].at(position));
+		}
+	}  else{
+		for(int i=0;i<8;i++) {
+			features.push_back(-1);
+		}
 	}
-	index++;
-
-	//suffixes
-	if(position>=0 && position<length) {
-		vector<int> sf=suffixes.at(position);
-		for (int i = 0; i < sf.size();i++)
-			features[index].push_back(sf.at(i));
-	}
-	index++;
 
 	// contain number
 	if(position>=0 && position<length) {
-		features[index].push_back((int)contains_hyphen.at(position));
-	}
-	index++;
+		features.push_back((int)contains_hyphen.at(position));
+	} else
+		features.push_back(-1);
 
 	// contain uppercase letter
 	if(position>=0 && position<length) {
-		features[index].push_back((int)contains_uppercase_letter.at(position));
-	}
-	index++;
+		features.push_back((int)contains_uppercase_letter.at(position));
+	}else
+		features.push_back(-1);
 
 	// contain hyphens
 	if(position>=0 && position<length) {
-		features[index].push_back((int)contains_number.at(position));
-	}
-	index++;
-
-	// unigram tag
-	features[index++].push_back(prev_tag);
-
-	// bigram tags
-	int bigram=(prev2_tag<<10) +  prev_tag;
-	features[index++].push_back(bigram);
+		features.push_back((int)contains_number.at(position));
+	}else
+		features.push_back(-1);
 
 	// previous word
 	int prev_word=0;
@@ -134,7 +118,7 @@ vector<int>* sentence::get_features(int position, int prev_tag, int prev2_tag,in
 	if(prev_pos>=0 && prev_pos<length) {
 		prev_word=words.at(prev_pos);
 	}
-	features[index++].push_back(prev_word);
+	features.push_back(prev_word);
 
 	// second previous word
 	int prev2_word=0;
@@ -142,7 +126,7 @@ vector<int>* sentence::get_features(int position, int prev_tag, int prev2_tag,in
 	if(prev2_pos>=0 && prev2_pos<length) {
 		prev2_word=words.at(prev2_pos);
 	}
-	features[index++].push_back(prev2_word);
+	features.push_back(prev2_word);
 
 	// next word
 	int next_word=1;
@@ -150,15 +134,30 @@ vector<int>* sentence::get_features(int position, int prev_tag, int prev2_tag,in
 	if(next_pos<length){
 		next_word=words.at(next_pos);
 	}
-	features[index++].push_back(next_word);
+	features.push_back(next_word);
 
 	// second next word
 	int next2_word=1;
 	int next2_pos=position+2;
 	if(next2_pos<length){
-		next_word=words.at(next2_pos);
+		next2_word=words.at(next2_pos);
 	}
-	features[index++].push_back(next2_word);
+	features.push_back(next2_word);
+
+	return features;
+}
+
+// the features are identical to Ratnaparkhi (1996) but as in Collins (2002) rare words are ignored
+// all features are used for both rare and frequent words
+vector<int> sentence::get_features(int const  position, int const  prev2_tag,int prev_tag) {
+	vector<int> features= getـ_emission_features(position);
+
+	// unigram tag
+	features.push_back(prev_tag);
+
+	// bigram tags
+	int bigram=(prev2_tag<<10) +  prev_tag;
+	features.push_back(bigram);
 
 	return features;
 }

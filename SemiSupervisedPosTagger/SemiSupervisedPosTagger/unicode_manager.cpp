@@ -43,7 +43,7 @@ vector<string> unicode_manager::suffixes(string word, int len) {
 	vector<string> suffixes;
 
 	int index=0;
-	int i=word.length()-1;
+	int i=(int)word.length()-1;
 	bool odd=false;
 
 	while(index<len){

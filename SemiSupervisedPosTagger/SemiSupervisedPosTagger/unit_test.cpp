@@ -25,21 +25,7 @@ void unit_test::test_perceptron() {
     perceptron.increment_iteration();
     cout<< perceptron.size()<<endl;
 
-    int features[10];
-    features[2]=87;
-
-    int arr_size= sizeof(features)/ sizeof(long);
-
-    cout<<perceptron.score(features,arr_size, 3, true)<<endl;
-    cout<<perceptron.score(features,arr_size, 3, false)<<endl;
-    perceptron.save_model("/tmp/saved");
-
-    averaged_perceptron * perceptron1= averaged_perceptron::load_model("/tmp/saved");
-    cout<< perceptron1->size()<<endl;
-
     cout<<"checking done!"<<endl;
-
-
 }
 
 unit_test::unit_test() {
@@ -74,23 +60,16 @@ void unit_test::test_utf8(string file_path) {
 
 }
 
-void unit_test::test_tag_file_reader(string file_path) {
+void unit_test::test_tag_file_reader(string file_path,const string delim) {
 	cout << "create index maps"<<endl;
-	index_maps indexMaps= file_manager::create_indexMaps(file_path);
+	index_maps indexMaps= file_manager::create_indexMaps(file_path,delim);
 	cout << "create sentences"<<endl;
-	vector<sentence> sentences=file_manager::read_sentences(file_path, indexMaps.string_dic);
-	cout << "done!"<<endl;
+	vector<sentence> sentences=file_manager::read_sentences(file_path, indexMaps.string_dic,delim);
 
 	sentence sen=sentences.at(1);
-	vector<int>* features1=	sen.get_features(2, 4, 5,12);
-	vector<int>* features2=	sen.get_features(-1, 4, 5,12);
-	vector<int>* features3=	sen.get_features(0, 4, 5,12);
-	vector<int>* features4=	sen.get_features(5, 4, 5,12);
-	vector<int>* features5=	sen.get_features(3, 4, 5,12);
-
-	delete [] features1;
-	delete [] features2;
-	delete  [] features3;
-	delete  [] features4;
-	delete  [] features5;
+	vector<int> features1=	sen.get_features(2, 4, 5);
+	vector<int> features2=	sen.get_features(-1, 4, 5);
+	vector<int> features3=	sen.get_features(0, 4, 5);
+	vector<int> features4=	sen.get_features(5, 4, 5);
+	vector<int> features5=	sen.get_features(3, 4, 5);
 }

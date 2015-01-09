@@ -23,12 +23,12 @@ private:
     unordered_map<int, float>** averaged_weights;
 
     int tag_size;
-    int feat_size;
 
 public:
     int iteration;
+	int feat_size;
 
-    averaged_perceptron(const int tag_size, const int feat_size);
+	averaged_perceptron(const int tag_size, const int feat_size);
 
     averaged_perceptron(const int tag_size, const int feat_size, unordered_map<int, float> **averaged_weights);
 
@@ -42,9 +42,9 @@ public:
 
     void change_weight(const int tag_index, const int feat_index, const int feature, const float change);
 
-    float score(const int features[],const int arr_size, const int tag_index, const bool is_decode);
+    float score(const vector<int> features, const int tag_index, const bool is_decode);
 
-	float score(const vector<int> features[],const int arr_size, const int tag_index, const bool is_decode);
+	float score(const int tag_index, const int feat_index, const int feat, const bool is_decode);
 
 	int size();
 };

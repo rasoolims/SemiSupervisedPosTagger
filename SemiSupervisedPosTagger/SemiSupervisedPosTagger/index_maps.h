@@ -16,8 +16,9 @@ class index_maps {
 	public:
 		unordered_map<string,int>  string_dic;
 		vector<string> reverse_dict;
+		int tag_size;
 
-		index_maps(unordered_map<string,int>  string_dic,vector<string> reverse_dict);
+		index_maps(unordered_map<string,int>  string_dic,vector<string> reverse_dict,int tag_size);
 		~index_maps();
 
 };

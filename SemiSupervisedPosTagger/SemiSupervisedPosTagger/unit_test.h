@@ -13,7 +13,7 @@ public:
     unit_test();
     void test_perceptron();
 	void test_utf8(string file_path);
-	void test_tag_file_reader(string file_path);
+	void test_tag_file_reader(string file_path,const string delim);
 };
 
 
