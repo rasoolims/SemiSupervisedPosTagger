@@ -13,12 +13,12 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 
 	// pai score values
 	float pai[len][tag_size][tag_size];
-	float emision_score[len - 1][tag_size];
+	float emission_score[len - 1][tag_size];
 
 	for (int position = 0; position < sentence.length; position++) {
 		vector<int> emission_features = sentence.getـ_emission_features(position);
 		for (int t = 2; t < tag_size; t++) {
-			emision_score[position][t] = perceptron.score(emission_features, t, is_decode);
+			emission_score[position][t] = perceptron.score(emission_features, t, is_decode);
 		}
 	}
 
@@ -46,7 +46,7 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 					int bigram = (w << 10) + u;
 					float trigram_score = perceptron.score(v, feat_size - 1, bigram, is_decode);
 
-					float score = trigram_score + bigram_score + emision_score[k - 1][v] + pai[k - 1][w][u];
+					float score = trigram_score + bigram_score + emission_score[k - 1][v] + pai[k - 1][w][u];
 					if (score > max_val) {
 						max_val = score;
 						argmax = w;
@@ -78,8 +78,8 @@ vector<int> viterbi::viterbi_third_order(sentence sentence, averaged_perceptron 
 	vector<int> tags;
 	tags.insert(tags.begin(), y2);
 	tags.insert(tags.begin(), y1);
-	for (int k = len - 2; k >= 2; k--) {
-		tags.insert(tags.begin(), bp[k][tags.at(0)][tags.at(1)]);
+	for (int k = len - 3; k >= 1; k--) {
+		tags.insert(tags.begin(), bp[k+2][tags.at(0)][tags.at(1)]);
 	}
 
 	return tags;
