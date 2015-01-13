@@ -10,7 +10,7 @@
 
 using namespace std;
 index_maps file_manager::create_indexMaps(string file_path,const string delim) {
-	cout << "creating index maps...";
+	cout << "creating index maps..."<<flush;
 	set<string> words;
 	set<string> tags;
 
@@ -91,16 +91,20 @@ index_maps file_manager::create_indexMaps(string file_path,const string delim) {
 		}
 	}
 
-	string* rv=new string[string_dic.size()];
+	vector<string> rv_str;
+	vector<int> rv_int;
 	for(auto kv:string_dic){
-		rv[kv.second]=kv.first;
+		rv_str.push_back(kv.first);
+		rv_int.push_back(kv.second-2);
 	}
 
-	for(int i=0;i<string_dic.size();i++)
-		reverse_dict.push_back(rv[i]);
+	reverse_dict.push_back("<START>");
+	reverse_dict.push_back("<STOP>");
+	for(int i=2;i<string_dic.size();i++) {
+			reverse_dict.push_back(rv_str.at(rv_int.at(i)));
+	}
 
-	cout << "done!\n";
-	delete []rv;
+	cout << "done!\n"<<flush;
 
 	return index_maps(string_dic, reverse_dict,tag_size);
 }

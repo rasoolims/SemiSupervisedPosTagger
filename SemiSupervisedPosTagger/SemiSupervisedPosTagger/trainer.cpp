@@ -12,22 +12,22 @@
 
 using namespace std;
 void trainer::train(string const train_file_path, string const dev_file_path, string const model_path, int const feat_size, string const delim, int const max_iterations) {
-	index_maps maps = file_manager::create_indexMaps(train_file_path,delim);   //todo maps should be saved to memory
+	index_maps maps = file_manager::create_indexMaps(train_file_path, delim);   //todo maps should be saved to memory
 
 	// reading train and dev sentences to a vector
-	vector<sentence> train_sentences = file_manager::read_sentences(train_file_path, maps.string_dic,delim);
-	vector<sentence> dev_sentences = file_manager::read_sentences(dev_file_path, maps.string_dic,delim);
+	vector<sentence> train_sentences = file_manager::read_sentences(train_file_path, maps.string_dic, delim);
+	vector<sentence> dev_sentences = file_manager::read_sentences(dev_file_path, maps.string_dic, delim);
 
 	averaged_perceptron classifier(maps.tag_size, feat_size);
 	for (int iter = 1; iter <= max_iterations; iter++) {
-		cout<< "\niter: "<<iter<<endl;
-		int corr=0;
-		int all=0;
+		cout << "\niter: " << iter << endl;
+		int corr = 0;
+		int all = 0;
 		//iterating over all training sentences
 		for (int s = 0; s < train_sentences.size(); s++) {
 			sentence sen = train_sentences.at(s);
-			if((s+1)%100==0)
-				cout << (s+1) <<" "<<flush;
+			if ((s + 1) % 100 == 0)
+				cout << (s + 1) << " " << flush;
 			vector<int> predicted_tags = tagger::tag(sen, classifier, false);
 
 			assert(predicted_tags.size() == sen.tags.size());
@@ -38,7 +38,7 @@ void trainer::train(string const train_file_path, string const dev_file_path, st
 				int gold = sen.tags.at(t);
 				if (predicted != gold) {
 					same = false;
-				}  else
+				} else
 					corr++;
 				all++;
 			}
@@ -99,7 +99,7 @@ void trainer::train(string const train_file_path, string const dev_file_path, st
 					vector<int> predicted_features = sen.get_features(t, predicted_prev2_tag, predicted_prev_tag);
 					vector<int> gold_features = sen.get_features(t, gold_prev2_tag, gold_prev_tag);
 
-					for (int f = feat_size-2; f < feat_size; f++) {
+					for (int f = feat_size - 2; f < feat_size; f++) {
 						int pfeat = predicted_features.at(f);
 						int gfeat = gold_features.at(f);
 
@@ -115,17 +115,17 @@ void trainer::train(string const train_file_path, string const dev_file_path, st
 
 			classifier.increment_iteration();
 		}
-		float accuracy=(float)corr*100.0/all;
-		cout <<endl<<"train accuracy: "<< accuracy<<endl;
+		float accuracy = (float) corr * 100.0 / all;
+		cout << endl << "train accuracy: " << accuracy << endl;
 
 		inf_struct info(classifier);
-		averaged_perceptron perceptron(info.tag_size,info.feat_size,info.averaged_weights);
-		cout <<"\ndecoding..."<<flush;
-		corr=0;
-		all=0;
-		int exact=0;
+		averaged_perceptron perceptron(info.tag_size, info.feat_size, info.averaged_weights);
+		cout << "\ndecoding..." << flush;
+		corr = 0;
+		all = 0;
+		int exact = 0;
 
-		int start_s=clock();
+		int start_s = clock();
 
 		for (int s = 0; s < dev_sentences.size(); s++) {
 			sentence sen = dev_sentences.at(s);
@@ -145,20 +145,20 @@ void trainer::train(string const train_file_path, string const dev_file_path, st
 					corr++;
 				all++;
 			}
-			if(same)
+			if (same)
 				exact++;
 		}
-		int stop_s=clock();
+		int stop_s = clock();
 
-		float duration=(float)(stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
-		duration/=dev_sentences.size();
+		float duration = (float) (stop_s - start_s) / double(CLOCKS_PER_SEC) * 1000;
+		duration /= dev_sentences.size();
 
 		cout << "\nduration " << duration << endl;
 
-		 accuracy=(float)corr*100.0/all;
-		float exact_match =(float) exact*100.0/dev_sentences.size();
-		cout <<"dev accuracy is "<<accuracy<<endl;
-		cout <<"dev exact match is "<<exact_match<<endl;
+		accuracy = (float) corr * 100.0 / all;
+		float exact_match = (float) exact * 100.0 / dev_sentences.size();
+		cout << "dev accuracy is " << accuracy << endl;
+		cout << "dev exact match is " << exact_match << endl;
 
 		//delete perceptron;
 		//delete  info;
