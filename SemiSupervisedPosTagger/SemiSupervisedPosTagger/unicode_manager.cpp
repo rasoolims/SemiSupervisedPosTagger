@@ -4,7 +4,7 @@
 //
 
 #include "unicode_manager.h"
-#include "iostream"
+#include <algorithm>
 
 using namespace std;
 vector<string> unicode_manager::prefixes(string word, int len) {
@@ -14,18 +14,22 @@ vector<string> unicode_manager::prefixes(string word, int len) {
 	int i=0;
 	bool odd=false;
 
+
+	string lowercased_word=word;
+	std::transform(lowercased_word.begin(), lowercased_word.end(), lowercased_word.begin(), ::tolower);
+
 	while(index<len){
-		if(i==word.length())
+		if(i==lowercased_word.length())
 			break;
-		char ch=word.at(i);
+		char ch=lowercased_word.at(i);
 		if(!odd && isascii(ch)){
-			prefixes.push_back(word.substr(0,i+1));
+			prefixes.push_back(lowercased_word.substr(0,i+1));
 			index+=1;
 		}
 		else{
 			if(odd){
 				odd=false;
-				prefixes.push_back(word.substr(0,i+1));
+				prefixes.push_back(lowercased_word.substr(0,i+1));
 				index++;
 			} else
 				odd=true;
@@ -46,18 +50,21 @@ vector<string> unicode_manager::suffixes(string word, int len) {
 	int i=(int)word.length()-1;
 	bool odd=false;
 
+	string lowercased_word=word;
+	std::transform(lowercased_word.begin(), lowercased_word.end(), lowercased_word.begin(), ::tolower);
+
 	while(index<len){
 		if(i<0)
 			break;
-		char ch=word.at(i);
+		char ch=lowercased_word.at(i);
 		if(!odd && isascii(ch)){
-			suffixes.push_back(word.substr(i));
+			suffixes.push_back(lowercased_word.substr(i));
 			index+=1;
 		}
 		else{
 			if(odd){
 				odd=false;
-				suffixes.push_back(word.substr(i));
+				suffixes.push_back(lowercased_word.substr(i));
 				index++;
 			} else
 				odd=true;

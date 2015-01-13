@@ -51,7 +51,6 @@ index_maps file_manager::create_indexMaps(string file_path,const string delim) {
 		string tag = *it;
 		if (string_dic.count(tag) <= 0) {
 			string_dic[tag] = index++;
-			reverse_dict.push_back(tag);
 		}
 	}
 	tag_size=index;
@@ -89,11 +88,20 @@ index_maps file_manager::create_indexMaps(string file_path,const string delim) {
 		string word = *it;
 		if (string_dic.count(word) <= 0) {
 			string_dic[word] = index++;
-			reverse_dict.push_back(word);
 		}
 	}
 
+	string* rv=new string[string_dic.size()];
+	for(auto kv:string_dic){
+		rv[kv.second]=kv.first;
+	}
+
+	for(int i=0;i<string_dic.size();i++)
+		reverse_dict.push_back(rv[i]);
+
 	cout << "done!\n";
+	delete []rv;
+
 	return index_maps(string_dic, reverse_dict,tag_size);
 }
 
@@ -102,17 +110,25 @@ vector<sentence> file_manager::read_sentences(string file_path, unordered_map<st
 	ifstream reader(file_path);
 
 	if(!reader.good()){
-		cout << "file "<< file_path<< " does not exit"<<endl;
+		cout << "file "<< file_path<< " does not exist"<<endl;
 		throw exception();
 	}
 
+	cout << "reading the file "<<file_path<<"..."<<flush;
+	int count=0;
 	while (!reader.eof()) {
 		string line;
 		getline(reader, line);
 		if (line.length() > 0) {
-			sentences.push_back(get_sentence_from_line(line, string_dict,delim));
+			count++;
+			if(count%100==0)
+				cout <<count<<"..."<<flush;
+			sentence sen=get_sentence_from_line(line, string_dict,delim);
+			if(sen.length>0)
+			sentences.push_back(sen);
 		}
 	}
+	cout <<"done!"<<endl;
 
 	return sentences;
 }
@@ -126,11 +142,14 @@ sentence file_manager::get_sentence_from_line(const string line, unordered_map<s
 		string sub;
 		iss >> sub;
 		if (sub.length() > 0) {
-			string word = sub.substr(0, sub.rfind(delim));
-			string tag = sub.substr(sub.rfind(delim) + 1, sub.length());
-			words.push_back(word);
-			tags.push_back(tag);
-			len++;
+			int ind=sub.rfind(delim);
+			if(ind>0) {
+				string word = sub.substr(0, ind);
+				string tag = sub.substr(ind + 1, sub.length());
+				words.push_back(word);
+				tags.push_back(tag);
+				len++;
+			}
 		}
 	} while (iss);
 	return sentence(words, tags, len, string_dict);

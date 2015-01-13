@@ -88,8 +88,9 @@ void averaged_perceptron::increment_iteration() {
 void averaged_perceptron::change_weight(const int tag_index, const int feat_index, const int feature, const float change) {
 	if(feature==-1)
 		return;
+	//cout<<tag_index<<" "<<feat_index<<" "<<feature<<" -> "<<change<<endl;
 
-    if(weights[tag_index][feat_index].count(feature)>0)
+	if(weights[tag_index][feat_index].count(feature)>0)
         weights[tag_index][feat_index][feature]=weights[tag_index][feat_index][feature]+change;
     else
         weights[tag_index][feat_index][feature]=change;

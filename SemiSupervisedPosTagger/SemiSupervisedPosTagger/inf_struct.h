@@ -14,6 +14,8 @@
 class inf_struct {
 public:
 	unordered_map<int, float>** averaged_weights;
+	int tag_size;
+	int feat_size;
 
 	inf_struct(averaged_perceptron perceptron);
 

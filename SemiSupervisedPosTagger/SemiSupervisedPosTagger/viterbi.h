@@ -12,7 +12,7 @@
 
 class viterbi {
 public:
-	static vector<int> viterbi_third_order(sentence sentence,averaged_perceptron perceptron,const int tag_size,const int feat_size,bool is_decode);
+	static vector<int> viterbi_third_order(const sentence sentence,const averaged_perceptron perceptron, bool is_decode);
 };
 
 

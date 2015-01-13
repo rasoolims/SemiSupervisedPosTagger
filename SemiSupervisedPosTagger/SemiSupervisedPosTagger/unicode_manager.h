@@ -14,10 +14,10 @@ using namespace std;
 class unicode_manager {
 	public:
 		// get prefixes at most up to length len
-		static vector<string> prefixes(string word, int len);
+		static vector<string> prefixes(const string word, const int len);
 
 		// get prefixes at most up to length len
-		static vector<string> suffixes(string word, int len);
+		static vector<string> suffixes(const string word, const int len);
 };
 
 

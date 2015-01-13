@@ -7,6 +7,8 @@
 
 inf_struct::inf_struct(averaged_perceptron perceptron) {
 	averaged_weights=perceptron.get_averaged_weights();
+	tag_size=perceptron.tag_size;
+	feat_size=perceptron.feat_size;
 }
 
 inf_struct::~inf_struct() {

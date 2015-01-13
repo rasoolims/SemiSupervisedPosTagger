@@ -70,7 +70,7 @@ sentence::sentence(vector<string> words, vector<string> tags, int length, unorde
 }
 
 
-vector<int> sentence::getـ_emission_features(const int position) {
+vector<int> sentence::get_emission_features(const int position) {
 	vector<int> features;
 
 	int current_word=0;
@@ -95,25 +95,25 @@ vector<int> sentence::getـ_emission_features(const int position) {
 	}
 
 	// contain number
-	if(position>=0 && position<length) {
-		features.push_back((int)contains_hyphen.at(position));
+	if(position>=0 && position<length && contains_hyphen.at(position)) {
+		features.push_back(1);
 	} else
 		features.push_back(-1);
 
 	// contain uppercase letter
-	if(position>=0 && position<length) {
-		features.push_back((int)contains_uppercase_letter.at(position));
+	if(position>=0 && position<length && contains_uppercase_letter.at(position)) {
+		features.push_back(1);
 	}else
 		features.push_back(-1);
 
 	// contain hyphens
-	if(position>=0 && position<length) {
-		features.push_back((int)contains_number.at(position));
+	if(position>=0 && position<length && contains_number.at(position)) {
+		features.push_back(1);
 	}else
 		features.push_back(-1);
 
 	// previous word
-	int prev_word=0;
+	int prev_word=-1;
 	int prev_pos=position-1;
 	if(prev_pos>=0 && prev_pos<length) {
 		prev_word=words.at(prev_pos);
@@ -121,7 +121,7 @@ vector<int> sentence::getـ_emission_features(const int position) {
 	features.push_back(prev_word);
 
 	// second previous word
-	int prev2_word=0;
+	int prev2_word=-1;
 	int prev2_pos=position-2;
 	if(prev2_pos>=0 && prev2_pos<length) {
 		prev2_word=words.at(prev2_pos);
@@ -129,7 +129,7 @@ vector<int> sentence::getـ_emission_features(const int position) {
 	features.push_back(prev2_word);
 
 	// next word
-	int next_word=1;
+	int next_word=-1;
 	int next_pos=position+1;
 	if(next_pos<length){
 		next_word=words.at(next_pos);
@@ -137,7 +137,7 @@ vector<int> sentence::getـ_emission_features(const int position) {
 	features.push_back(next_word);
 
 	// second next word
-	int next2_word=1;
+	int next2_word=-1;
 	int next2_pos=position+2;
 	if(next2_pos<length){
 		next2_word=words.at(next2_pos);
@@ -150,7 +150,7 @@ vector<int> sentence::getـ_emission_features(const int position) {
 // the features are identical to Ratnaparkhi (1996) but as in Collins (2002) rare words are ignored
 // all features are used for both rare and frequent words
 vector<int> sentence::get_features(int const  position, int const  prev2_tag,int prev_tag) {
-	vector<int> features= getـ_emission_features(position);
+	vector<int> features= get_emission_features(position);
 
 	// unigram tag
 	features.push_back(prev_tag);

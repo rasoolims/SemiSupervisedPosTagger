@@ -27,7 +27,7 @@ class sentence {
 		vector<bool> contains_uppercase_letter;
 
 		vector<int> get_features(const int position, const  int prev2_tag,const int prev_tag);
-		vector<int> getـ_emission_features(const int position);
+		vector<int> get_emission_features(const int position);
 
 		sentence(vector<string> words,vector<string> tags,int length, unordered_map<string,int> string_dict);
 		~sentence();
