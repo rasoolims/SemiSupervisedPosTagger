@@ -1,3 +1,5 @@
+import Structures.Options;
+import Tagging.Tagger;
 import Training.Trainer;
 
 /**
@@ -10,27 +12,14 @@ import Training.Trainer;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String trainPath = "/Users/msr/Desktop/wsj_tagging_data/dev.pos";
-        String devPath = "/Users/msr/Desktop/wsj_tagging_data/test.pos";
-        String modelPath = "/tmp/model";
-        boolean useBeamSearch=false;
-        int beamSize=0;
-        if (args.length > 2) {
-            trainPath = args[0];
-            devPath = args[1];
-            modelPath = args[2];
-            if(args.length>3){
-                useBeamSearch=true;
-                beamSize=Integer.parseInt(args[3]);
-            }
-        }
-        System.out.println("train_path: " + trainPath);
-        System.out.println("dev_path: " + devPath);
-        System.out.println("model_path: " + modelPath);
-        System.out.println("use_beam_search: " + useBeamSearch);
-        System.out.println("beam_size: " + beamSize);
-        Trainer.train(trainPath,
-                devPath, modelPath, 18, "_", 20, useBeamSearch, beamSize);
+        Options options = new Options(args);
+        System.out.println(options);
+        if (options.train && options.trainPath != "" && options.devPath != "" && options.modelPath != "")
+            Trainer.train(options.trainPath,
+                    options.devPath, options.modelPath, 18, options.delim, options.trainingIter, options.useBeamSearch, options.beamWidth);
+        else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "")
+            Tagger.tag(options.modelPath, options.inputPath, options.outputPath, options.delim);
+        else
+            System.out.println(options.showHelp());
     }
-
 }

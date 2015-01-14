@@ -7,6 +7,9 @@ import Structures.InfStruct;
 import Structures.Sentence;
 import Tagging.Tagger;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -125,8 +128,12 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + accuracy + "\n");
 
-            InfStruct info = new InfStruct(classifier);
-            AveragedPerceptron perceptron = new AveragedPerceptron(info.tagSize, info.featSize, info.averagedWeights);
+            InfStruct info = new InfStruct(classifier,useBeamSearch,beamSize);
+            System.out.print("saving the model...");
+            saveModel(maps,info,modelPath+".iter_"+iter);
+            System.out.print("done!\n");
+
+            AveragedPerceptron perceptron = new AveragedPerceptron(info);
             System.out.print("\ndecoding...");
             corr = 0;
             all = 0;
@@ -163,8 +170,16 @@ public class Trainer {
 
             accuracy = (float) corr * 100.0f / all;
             float exact_match = (float) exact * 100.0f / dev_sentences.size();
-            System.out.print("dev accuracy is " + accuracy + "\n");
-            System.out.print("dev exact match is " + exact_match + "\n");
+            System.out.print("dev accuracy is " + format.format(accuracy) + "\n");
+            System.out.print("dev exact match is " +  format.format(exact_match) + "\n");
         }
+    }
+
+    public static void saveModel(IndexMaps maps,InfStruct info,String modelPath) throws Exception{
+        ObjectOutput writer = new ObjectOutputStream(new FileOutputStream(modelPath));
+        writer.writeObject(info);
+        writer.writeObject(maps);
+        writer.flush();
+        writer.close();
     }
 }

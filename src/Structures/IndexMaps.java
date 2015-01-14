@@ -3,6 +3,7 @@ package Structures;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -13,7 +14,7 @@ import java.util.HashSet;
  * Time: 4:56 PM
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
-public class IndexMaps {
+public class IndexMaps  implements Serializable {
     public HashMap<String,Integer> stringMap;
     public String[] reversedMap;
     public final int tagSize;

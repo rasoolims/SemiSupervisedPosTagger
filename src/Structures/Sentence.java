@@ -44,7 +44,7 @@ public class Sentence {
             if(maps.stringMap.containsKey(word))
                 this.words[i]=  maps.stringMap.get(word);
             else
-                this.words[i]=-1;
+                this.words[i]=SpecialWords.unknown.value;
 
             for(int p=0;p<Math.min(4,word.length());p++) {
                 String prefix = lowerWord.substring(0, p + 1);
@@ -88,7 +88,7 @@ public class Sentence {
             if(maps.stringMap.containsKey(tags.get(i)))
                 this.tags[i]=  maps.stringMap.get(tags.get(i));
             else
-                this.tags[i]=-1;
+                this.tags[i]=SpecialWords.unknown.value;
         }
     }
 
@@ -106,7 +106,7 @@ public class Sentence {
             if(maps.stringMap.containsKey(word))
                 this.words[i]=  maps.stringMap.get(word);
             else
-                this.words[i]=-1;
+                this.words[i]=SpecialWords.unknown.value;
 
             for(int p=0;p<Math.min(4,word.length());p++) {
                 String prefix = word.substring(0, p + 1);
@@ -115,17 +115,17 @@ public class Sentence {
                 if(maps.stringMap.containsKey(prefix))
                     prefixes[i][p]=maps.stringMap.get(prefix);
                 else
-                    prefixes[i][p]=-1;
+                    prefixes[i][p]=SpecialWords.unknown.value;
 
                 if(maps.stringMap.containsKey(suffix))
                     suffixes[i][p]=maps.stringMap.get(suffix);
                 else
-                    suffixes[i][p]=-1;
+                    suffixes[i][p]=SpecialWords.unknown.value;
             }
             if(word.length()<4){
                 for(int p=word.length();p<4;p++){
-                    prefixes[i][p]=-1;
-                    suffixes[i][p]=-1;
+                    prefixes[i][p]=SpecialWords.unknown.value;
+                    suffixes[i][p]=SpecialWords.unknown.value;
                 }
             }
 
@@ -151,9 +151,69 @@ public class Sentence {
             if(maps.stringMap.containsKey(tags.get(i)))
                 this.tags[i]=  maps.stringMap.get(tags.get(i));
             else
-                this.tags[i]=-1;
+                this.tags[i]=SpecialWords.unknown.value;
         }
     }
+
+    public Sentence(ArrayList<String> words,IndexMaps maps){
+        this.words=new int[words.size()];
+        this.tags=new int[words.size()];
+        prefixes=new int[words.size()][4];
+        suffixes=new int[words.size()][4];
+        containsNumber=new boolean[words.size()];
+        containsHyphen=new boolean[words.size()];
+        containsUpperCaseLetter=new boolean[words.size()];
+
+        for(int i=0;i<words.size();i++){
+            String word=words.get(i);
+            if(maps.stringMap.containsKey(word))
+                this.words[i]=  maps.stringMap.get(word);
+            else
+                this.words[i]=SpecialWords.unknown.value;
+
+            for(int p=0;p<Math.min(4,word.length());p++) {
+                String prefix = word.substring(0, p + 1);
+                String suffix = word.substring(word.length() - p - 1);
+
+                if(maps.stringMap.containsKey(prefix))
+                    prefixes[i][p]=maps.stringMap.get(prefix);
+                else
+                    prefixes[i][p]=SpecialWords.unknown.value;
+
+                if(maps.stringMap.containsKey(suffix))
+                    suffixes[i][p]=maps.stringMap.get(suffix);
+                else
+                    suffixes[i][p]=SpecialWords.unknown.value;
+            }
+            if(word.length()<4){
+                for(int p=word.length();p<4;p++){
+                    prefixes[i][p]=SpecialWords.unknown.value;
+                    suffixes[i][p]=SpecialWords.unknown.value;
+                }
+            }
+
+            boolean hasUpperCase=false;
+            boolean hasHyphen=false;
+            boolean hasNumber=false;
+
+            for(char c:word.toCharArray()){
+                if(!hasUpperCase && Character.isUpperCase(c))
+                    hasUpperCase=true;
+                if(!hasHyphen &&  c=='-')
+                    hasHyphen=true;
+                if(!hasNumber && Character.isDigit(c))
+                    hasNumber=true;
+                if(hasHyphen && hasNumber && hasUpperCase)
+                    break;
+            }
+
+            containsHyphen[i]=hasHyphen;
+            containsNumber[i]=hasNumber;
+            containsUpperCaseLetter[i]=hasUpperCase;
+            this.tags[i]=SpecialWords.unknown.value;
+        }
+    }
+
 
     public int[] getEmissionFeatures(final int position, final int featSize){
         int[] features=new int[featSize];
@@ -173,9 +233,9 @@ public class Sentence {
                 features[index++]=prefixes[position][i];
                 features[index++]=suffixes[position][i];
             }
-            features[index++]=(containsHyphen[position])?1:-1;
-            features[index++]=(containsNumber[position])?1:-1;
-            features[index++]=(containsUpperCaseLetter[position])?1:-1;
+            features[index++]=(containsHyphen[position])?1:SpecialWords.unknown.value;
+            features[index++]=(containsNumber[position])?1:SpecialWords.unknown.value;
+            features[index++]=(containsUpperCaseLetter[position])?1:SpecialWords.unknown.value;
 
         }  else{
             for(int i=0;i<11;i++){

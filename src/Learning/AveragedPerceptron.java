@@ -6,6 +6,8 @@
 
 package Learning;
 
+import Structures.InfStruct;
+
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -45,7 +47,7 @@ public class AveragedPerceptron {
                 averagedWeights[i][j] = new HashMap<Integer, Float>();
     }
 
-    public AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights) {
+    private AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights) {
         featureWeights = new HashMap[tagSize][featSize];
         for (int i = 0; i < featureWeights.length; i++)
             for (int j = 0; j < featureWeights[i].length; j++)
@@ -53,6 +55,10 @@ public class AveragedPerceptron {
 
         iteration = 1;
         this.averagedWeights = averagedWeights;
+    }
+
+    public AveragedPerceptron (InfStruct info){
+         this(info.tagSize,info.featSize,info.averagedWeights);
     }
 
     public float changeWeight(int tagIndex,int featIndex, int featureName, float change) {
