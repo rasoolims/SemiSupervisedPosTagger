@@ -155,7 +155,6 @@ public class Sentence {
         }
     }
 
-
     public int[] getEmissionFeatures(final int position, final int featSize){
         int[] features=new int[featSize];
         int index=0;
@@ -184,10 +183,10 @@ public class Sentence {
             }
         }
 
-        int prevWord=SpecialWords.unknown.value;
-        int prev2Word=SpecialWords.unknown.value;
-        int nextWord=SpecialWords.unknown.value;
-        int next2Word=SpecialWords.unknown.value;
+        int prevWord=SpecialWords.start.value;
+        int prev2Word=SpecialWords.start.value;
+        int nextWord=SpecialWords.stop.value;
+        int next2Word=SpecialWords.stop.value;
 
         int prevPosition=position-1;
         if(prevPosition>=0){

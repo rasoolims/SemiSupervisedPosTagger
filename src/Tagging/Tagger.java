@@ -28,7 +28,7 @@ public class Tagger {
 
     public static int[] tag(final Sentence sentence, final AveragedPerceptron classifier, final boolean isDecode, final boolean useBeamSearch, final int beamSize) {
         //todo write beam search
-        return useBeamSearch ? Viterbi.thirdOrder(sentence, classifier, isDecode)
-                : Viterbi.thirdOrder(sentence, classifier, isDecode);
+        return useBeamSearch ?
+                BeamTagger.thirdOrder(sentence, classifier, isDecode,beamSize):Viterbi.thirdOrder(sentence, classifier, isDecode);
     }
 }

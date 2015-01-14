@@ -34,7 +34,7 @@ public class Trainer {
             //iterating over all training sentences
             for (int s = 0; s < train_sentences.size(); s++) {
                 Sentence sen = train_sentences.get(s);
-                if ((s + 1) % 100 == 0)
+                if ((s + 1) % 1000 == 0)
                     System.out.print((s + 1) + " ");
                 int[] predicted_tags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize);
 
@@ -136,7 +136,7 @@ public class Trainer {
 
             for (int s = 0; s < dev_sentences.size(); s++) {
                 Sentence sen = dev_sentences.get(s);
-                if ((s + 1) % 10 == 0)
+                if ((s + 1) % 1000 == 0)
                     System.out.print((s + 1) + " ");
                 int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize);
 
