@@ -41,9 +41,9 @@ public class Options {
             if(args[i].equals("-viterbi"))
                 useBeamSearch=false;
             if(args[i].startsWith("beam:"))
-                beamWidth = Integer.parseInt(args[i + 1].substring(args[i].indexOf("beam:")+1));
+                beamWidth = Integer.parseInt(args[i].substring(args[i].indexOf("beam:")+5));
             if(args[i].startsWith("iter:"))
-                trainingIter = Integer.parseInt(args[i + 1].substring(args[i].indexOf("iter:")+1));
+                trainingIter = Integer.parseInt(args[i].substring(args[i].indexOf("iter:")+5));
             if(args[i].equals("train"))
                 train=true;
             if(args[i].equals("tag"))
