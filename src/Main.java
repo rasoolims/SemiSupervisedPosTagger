@@ -9,7 +9,6 @@ import Training.Trainer;
  * Time: 1:07 PM
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
-
 public class Main {
     public static void main(String[] args) throws Exception {
         Options options = new Options(args);

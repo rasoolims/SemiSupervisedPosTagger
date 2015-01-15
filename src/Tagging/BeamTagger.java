@@ -242,19 +242,4 @@ public class BeamTagger {
 
         return maxViolState;
     }
-
-    private static boolean inBeam(ArrayList<TaggingState> states, int[] goldTags) {
-        for (TaggingState state : states) {
-            boolean same = true;
-            for (int i = 0; i <= state.currentPosition; i++) {
-                if (goldTags[i] != state.tags[i]) {
-                    same = false;
-                    break;
-                }
-            }
-            if (same)
-                return true;
-        }
-        return false;
-    }
 }
