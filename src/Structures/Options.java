@@ -20,19 +20,21 @@ public class Options {
     public String devPath;
     public String inputPath;
     public String outputPath;
+    public UpdateMode updateMode;
 
     public Options() {
         this.useBeamSearch = true;
-        train=true;
+        train = false;
         tag=false;
-        beamWidth=5;
-        trainingIter=10;
+        beamWidth = 20;
+        trainingIter = 20;
         delim="_";
         modelPath="";
         trainPath="";
         devPath="";
         inputPath="";
         outputPath="";
+        updateMode = UpdateMode.maxViolation;
     }
 
     public Options(String[] args){
@@ -60,6 +62,12 @@ public class Options {
                 devPath = args[i + 1];
             if(args[i].equals("-delim") && i<args.length-1)
                 delim = args[i + 1];
+            if (args[i].equals("--update:max_viol") && i < args.length - 1)
+                updateMode = UpdateMode.maxViolation;
+            if (args[i].equals("---update:early") && i < args.length - 1)
+                updateMode = UpdateMode.early;
+            if (args[i].equals("---update:standard") && i < args.length - 1)
+                updateMode = UpdateMode.standard;
         }
     }
 
@@ -72,18 +80,14 @@ public class Options {
             output.append("model file: " + trainPath + "\n");
             if (!useBeamSearch)
                 output.append("using Viterbi algorithm\n");
-            else
-                output.append("using beam search algorithm with beam size:" + beamWidth + "\n");
-
+            else {
+                output.append("using beam search algorithm with beam size:" + beamWidth + " with " + updateMode + "\n");
+            }
         } else if (tag) {
             output.append("train iterations: " + trainingIter + "\n");
             output.append("input file: " + inputPath + "\n");
             output.append("output file: " + outputPath + "\n");
             output.append("model file: " + trainPath + "\n");
-            if (!useBeamSearch)
-                output.append("using Viterbi algorithm\n");
-            else
-                output.append("using beam search algorithm with beam size:" + beamWidth + "\n");
         }
         return output.toString();
     }
@@ -94,9 +98,10 @@ public class Options {
         output.append(">>  java -jar SemiSupervisedTagger.jar train -input [input-file] -model [model-file]\n");
         output.append("** Other Options:\n");
         output.append("     -viterbi   if you want to use Viterbi decoding (default: beam decoding)\n");
+        output.append("     -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
         output.append("     beam:[#b]  put a number [#b] for beam size (default:5); e.g. beam:10\n");
-        output.append("     iter:[#i]  put a number [#i] for training iterations (default:10); e.g. iter:20\n");
+        output.append("     iter:[#i]  put a number [#i] for training iterations (default:20); e.g. iter:10\n");
         output.append("\n\n");
 
         output.append("* Tag a file:\n");

@@ -2,11 +2,10 @@ package Tagging;
 
 import Learning.AveragedPerceptron;
 import Structures.IndexMaps;
-import Structures.InfStruct;
+import Structures.InfoStruct;
 import Structures.Sentence;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -32,7 +31,6 @@ public class Tagger {
     }
 
     public static int[] tag(final Sentence sentence, final AveragedPerceptron classifier, final boolean isDecode, final boolean useBeamSearch, final int beamSize) {
-        //todo write beam search
         return useBeamSearch ?
                 BeamTagger.thirdOrder(sentence, classifier, isDecode,beamSize):Viterbi.thirdOrder(sentence, classifier, isDecode);
     }
@@ -42,10 +40,14 @@ public class Tagger {
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
         System.out.print("loading the model...");
         ObjectInput modelReader = new ObjectInputStream(new FileInputStream(modelPath));
-        InfStruct info=(InfStruct) modelReader.readObject();
+        InfoStruct info = (InfoStruct) modelReader.readObject();
         AveragedPerceptron perceptron=new AveragedPerceptron(info);
         IndexMaps maps=(IndexMaps) modelReader.readObject();
         System.out.print("done!\n");
+        if (!info.useBeamSearch)
+            System.out.print("using Viterbi algorithm\n");
+        else
+            System.out.print("using beam search algorithm with beam size: " + info.beamSize + "\n");
 
         int ln=0;
         String line;

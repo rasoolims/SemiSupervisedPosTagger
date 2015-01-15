@@ -6,10 +6,9 @@
 
 package Learning;
 
-import Structures.InfStruct;
+import Structures.InfoStruct;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class AveragedPerceptron {
     /**
@@ -57,7 +56,7 @@ public class AveragedPerceptron {
         this.averagedWeights = averagedWeights;
     }
 
-    public AveragedPerceptron (InfStruct info){
+    public AveragedPerceptron(InfoStruct info) {
          this(info.tagSize,info.featSize,info.averagedWeights);
     }
 

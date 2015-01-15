@@ -14,9 +14,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Options options = new Options(args);
         System.out.println(options);
-        if (options.train && options.trainPath != "" && options.devPath != "" && options.modelPath != "")
-            Trainer.train(options.trainPath,
-                    options.devPath, options.modelPath, 18, options.delim, options.trainingIter, options.useBeamSearch, options.beamWidth);
+
+        if (options.train && options.trainPath != "" && options.modelPath != "")
+            Trainer.train(options, 18);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "")
             Tagger.tag(options.modelPath, options.inputPath, options.outputPath, options.delim);
         else

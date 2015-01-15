@@ -13,14 +13,14 @@ import java.util.HashMap;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 
-public class InfStruct implements Serializable {
+public class InfoStruct implements Serializable {
     public HashMap<Integer, Float>[][] averagedWeights;
     public int tagSize;
     public int featSize;
     public int beamSize;
     public boolean useBeamSearch;
 
-    public InfStruct(AveragedPerceptron perceptron,boolean useBeamSearch,int beamSize) {
+    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize) {
         averagedWeights = perceptron.getAveragedWeights();
         tagSize = perceptron.tagSize();
         featSize = perceptron.featureSize();
