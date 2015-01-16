@@ -80,7 +80,7 @@ public class Trainer {
                 updateWeights(sen, classifier, predictedTags, featSize, currentPosition);
             }
         } else {
-            int[] predictedTags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize);
+            int[] predictedTags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize,false);
             assert (predictedTags.length == sen.tags.length);
 
             boolean same = true;
@@ -184,7 +184,7 @@ public class Trainer {
             Sentence sen = dev_sentences.get(s);
             if ((s + 1) % 1000 == 0)
                 System.out.print((s + 1) + " ");
-            int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize);
+            int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize,false);
 
             assert (predictedTags.length == sen.tags.length);
 

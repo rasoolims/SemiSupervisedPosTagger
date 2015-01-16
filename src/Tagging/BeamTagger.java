@@ -16,12 +16,16 @@ import java.util.TreeSet;
 
 public class BeamTagger {
 
-    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, int beamWidth){
+    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, int beamWidth,final boolean usePartialInfo){
         int len = sentence.words.length + 1;
         float inf = Float.POSITIVE_INFINITY;
 
         int tagSize = perceptron.tagSize();
         int featSize = perceptron.featureSize();
+
+        ArrayList<Integer> allTags=new ArrayList<Integer>(tagSize-2);
+        for(int i=2;i<tagSize;i++)
+            allTags.add(i);
 
         // pai score values
         float emission_score[][] = new float[len - 1][tagSize];
@@ -58,7 +62,15 @@ public class BeamTagger {
                 int prevTag=currentPosition>0?state.tags[currentPosition-1]:0;
                 int prev2Tag=currentPosition>1?state.tags[currentPosition-2]:0;
 
-                for(int tagDecision=2;tagDecision<tagSize;tagDecision++) {
+                ArrayList<Integer> possibleTags=new ArrayList<Integer>();
+                if(sentence.tags[i]==-1 || ! usePartialInfo)
+                    possibleTags=allTags;
+                else
+                    possibleTags.add(sentence.tags[i]);
+
+
+
+                for(int tagDecision : possibleTags) {
                     float es=emission_score[currentPosition][tagDecision];
                     float bs=bigramScore[prevTag][tagDecision];
                     float ts=trigramScore[prev2Tag][prevTag][tagDecision];

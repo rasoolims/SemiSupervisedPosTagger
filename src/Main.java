@@ -14,10 +14,13 @@ public class Main {
         Options options = new Options(args);
         System.out.println(options);
 
+
         if (options.train && options.trainPath != "" && options.modelPath != "")
             Trainer.train(options, 18);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "")
             Tagger.tag(options.modelPath, options.inputPath, options.outputPath, options.delim);
+        else if (options.tagPartial && options.inputPath != "" && options.modelPath != "" && options.outputPath != "")
+            Tagger.partialTag(options.modelPath, options.inputPath, options.outputPath, options.delim);
         else
             System.out.println(options.showHelp());
     }

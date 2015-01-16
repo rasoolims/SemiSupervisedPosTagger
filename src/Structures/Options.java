@@ -12,6 +12,7 @@ public class Options {
     public boolean useBeamSearch;
     public boolean train;
     public boolean tag;
+    public boolean tagPartial;
     public int beamWidth;
     public int trainingIter;
     public String delim;
@@ -26,6 +27,7 @@ public class Options {
         this.useBeamSearch = true;
         train = false;
         tag=false;
+        tagPartial=false;
         beamWidth = 20;
         trainingIter = 20;
         delim="_";
@@ -50,6 +52,8 @@ public class Options {
                 train=true;
             if(args[i].equals("tag"))
                 tag=true;
+            if(args[i].equals("partial_tag"))
+                tagPartial=true;
             if(args[i].equals("-model") && i<args.length-1)
                 modelPath=args[i+1];
             if(args[i].equals("-input") && i<args.length-1) {
@@ -83,8 +87,7 @@ public class Options {
             else {
                 output.append("using beam search algorithm with beam size:" + beamWidth + " with " + updateMode + "\n");
             }
-        } else if (tag) {
-            output.append("train iterations: " + trainingIter + "\n");
+        } else if (tag || tagPartial) {
             output.append("input file: " + inputPath + "\n");
             output.append("output file: " + outputPath + "\n");
             output.append("model file: " + trainPath + "\n");
@@ -102,12 +105,21 @@ public class Options {
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
         output.append("     beam:[#b]  put a number [#b] for beam size (default:5); e.g. beam:10\n");
         output.append("     iter:[#i]  put a number [#i] for training iterations (default:20); e.g. iter:10\n");
+        output.append("\nNOTE: in every iteration the model file for that iteration will have the format [model-file].iter_#iter e.g. model.iter_3");
         output.append("\n\n");
 
         output.append("* Tag a file:\n");
         output.append(">>  java -jar SemiSupervisedTagger.jar tag -input [input-file] -model [model-file] -output [output-file]\n");
         output.append("** Other Options:\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
+        output.append("\n\n");
+
+        output.append("* Tag a partially tagged file:\n");
+        output.append(">>  java -jar SemiSupervisedTagger.jar partial_tag -input [input-file] -model [model-file] -output [output-file]\n");
+        output.append("** For words with no tag information, put *** as the tag; e.g. After_IN our_*** discussion_*** ._.\n");
+        output.append("** Other Options:\n");
+        output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
+        output.append("\n\n");
 
         return output.toString();
     }
