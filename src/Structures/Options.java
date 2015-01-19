@@ -81,7 +81,8 @@ public class Options {
         if (train) {
             output.append("train iterations: " + trainingIter + "\n");
             output.append("train file: " + trainPath + "\n");
-            output.append("model file: " + trainPath + "\n");
+            output.append("model file: " + modelPath + "\n");
+            output.append("dev file: " + devPath + "\n");
             if (!useBeamSearch)
                 output.append("using Viterbi algorithm\n");
             else {
@@ -100,6 +101,7 @@ public class Options {
         output.append("* Train a tagger:\n");
         output.append(">>  java -jar SemiSupervisedTagger.jar train -input [input-file] -model [model-file]\n");
         output.append("** Other Options:\n");
+        output.append("     -dev [dev-file]  dev file address\n");
         output.append("     -viterbi   if you want to use Viterbi decoding (default: beam decoding)\n");
         output.append("     -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
