@@ -50,6 +50,8 @@ public class Trainer {
             InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth);
             System.out.print("saving the model...");
             saveModel(maps, info, options.modelPath + ".iter_" + iter);
+            if (iter == 1)
+                Tagger.tag(options.modelPath + ".iter_" + iter, options.inputPath, "/tmp/ox3", options.delim);
             System.out.print("done!\n");
 
             if (dev_sentences.size() > 0)
@@ -184,7 +186,7 @@ public class Trainer {
             Sentence sen = dev_sentences.get(s);
             if ((s + 1) % 1000 == 0)
                 System.out.print((s + 1) + " ");
-            int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize,false);
+            int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize, false);
 
             assert (predictedTags.length == sen.tags.length);
 
@@ -192,10 +194,11 @@ public class Trainer {
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
                 int gold = sen.tags[t];
-                if (predicted != gold) {
-                    same = false;
-                } else
+                if (predicted == gold) {
                     corr++;
+                } else {
+                    same = false;
+                }
                 all++;
             }
             if (same)

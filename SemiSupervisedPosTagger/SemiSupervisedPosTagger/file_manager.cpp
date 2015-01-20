@@ -101,7 +101,7 @@ index_maps file_manager::create_indexMaps(string file_path,const string delim) {
 	reverse_dict.push_back("<START>");
 	reverse_dict.push_back("<STOP>");
 	for(int i=2;i<string_dic.size();i++) {
-			reverse_dict.push_back(rv_str.at(rv_int.at(i)));
+		reverse_dict.push_back(rv_str.at(rv_int.at(i)));
 	}
 
 	cout << "done!\n"<<flush;

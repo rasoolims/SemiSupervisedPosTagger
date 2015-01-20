@@ -26,15 +26,11 @@ public class Sentence {
         String[] split=line.trim().split(" ");
         ArrayList<String> words=new ArrayList<String>();
         ArrayList<String> tags=new ArrayList<String>();
-        try {
             for (int i = 0; i < split.length; i++) {
                 int index = split[i].lastIndexOf(delim);
                 words.add(split[i].substring(0, index));
                 tags.add(split[i].substring(index + 1));
             }
-        }catch (Exception ex){
-            System.out.print("HERE!");
-        }
         this.words=new int[words.size()];
         this.tags=new int[tags.size()];
         this.wordStrs=new String[words.size()];
@@ -94,7 +90,7 @@ public class Sentence {
 
             if (tags.get(i).equals("***"))//for unknown tag
                 this.tags[i]=SpecialWords.unknown.value;
-            if(maps.stringMap.containsKey(tags.get(i)))
+            else if (maps.stringMap.containsKey(tags.get(i)))
                 this.tags[i]=  maps.stringMap.get(tags.get(i));
             else
                 this.tags[i]=SpecialWords.unknown.value;
@@ -103,6 +99,7 @@ public class Sentence {
 
     public Sentence(ArrayList<String> words,IndexMaps maps){
         this.words=new int[words.size()];
+        this.wordStrs = new String[words.size()];
         this.tags=new int[words.size()];
         prefixes=new int[words.size()][4];
         suffixes=new int[words.size()][4];
@@ -110,53 +107,55 @@ public class Sentence {
         containsHyphen=new boolean[words.size()];
         containsUpperCaseLetter=new boolean[words.size()];
 
-        for(int i=0;i<words.size();i++){
-            String word=words.get(i);
-            if(maps.stringMap.containsKey(word))
-                this.words[i]=  maps.stringMap.get(word);
+        for (int i = 0; i < words.size(); i++) {
+            String word = words.get(i);
+            this.wordStrs[i] = word;
+            String lowerWord = word.toLowerCase();
+            if (maps.stringMap.containsKey(word))
+                this.words[i] = maps.stringMap.get(word);
             else
-                this.words[i]=SpecialWords.unknown.value;
+                this.words[i] = SpecialWords.unknown.value;
 
-            for(int p=0;p<Math.min(4,word.length());p++) {
-                String prefix = word.substring(0, p + 1);
-                String suffix = word.substring(word.length() - p - 1);
+            for (int p = 0; p < Math.min(4, word.length()); p++) {
+                String prefix = lowerWord.substring(0, p + 1);
+                String suffix = lowerWord.substring(word.length() - p - 1);
 
-                if(maps.stringMap.containsKey(prefix))
-                    prefixes[i][p]=maps.stringMap.get(prefix);
+                if (maps.stringMap.containsKey(prefix))
+                    prefixes[i][p] = maps.stringMap.get(prefix);
                 else
-                    prefixes[i][p]=SpecialWords.unknown.value;
+                    prefixes[i][p] = SpecialWords.unknown.value;
 
-                if(maps.stringMap.containsKey(suffix))
-                    suffixes[i][p]=maps.stringMap.get(suffix);
+                if (maps.stringMap.containsKey(suffix))
+                    suffixes[i][p] = maps.stringMap.get(suffix);
                 else
-                    suffixes[i][p]=SpecialWords.unknown.value;
+                    suffixes[i][p] = SpecialWords.unknown.value;
             }
-            if(word.length()<4){
-                for(int p=word.length();p<4;p++){
-                    prefixes[i][p]=SpecialWords.unknown.value;
-                    suffixes[i][p]=SpecialWords.unknown.value;
+            if (word.length() < 4) {
+                for (int p = word.length(); p < 4; p++) {
+                    prefixes[i][p] = SpecialWords.unknown.value;
+                    suffixes[i][p] = SpecialWords.unknown.value;
                 }
             }
 
-            boolean hasUpperCase=false;
-            boolean hasHyphen=false;
-            boolean hasNumber=false;
-
-            for(char c:word.toCharArray()){
-                if(!hasUpperCase && Character.isUpperCase(c))
-                    hasUpperCase=true;
-                if(!hasHyphen &&  c=='-')
-                    hasHyphen=true;
-                if(!hasNumber && Character.isDigit(c))
-                    hasNumber=true;
-                if(hasHyphen && hasNumber && hasUpperCase)
+            boolean hasUpperCase = false;
+            boolean hasHyphen = false;
+            boolean hasNumber = false;
+            for (char c : word.toCharArray()) {
+                if (!hasUpperCase && Character.isUpperCase(c))
+                    hasUpperCase = true;
+                if (!hasHyphen && c == '-')
+                    hasHyphen = true;
+                if (!hasNumber && Character.isDigit(c))
+                    hasNumber = true;
+                if (hasHyphen && hasNumber && hasUpperCase)
                     break;
             }
 
-            containsHyphen[i]=hasHyphen;
-            containsNumber[i]=hasNumber;
-            containsUpperCaseLetter[i]=hasUpperCase;
-            this.tags[i]=SpecialWords.unknown.value;
+            containsHyphen[i] = hasHyphen;
+            containsNumber[i] = hasNumber;
+            containsUpperCaseLetter[i] = hasUpperCase;
+
+            this.tags[i] = SpecialWords.unknown.value;
         }
     }
 

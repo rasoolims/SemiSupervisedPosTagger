@@ -65,7 +65,7 @@ public class FileManager {
         // 0 and 1 are reserved for stop and start
         int index=2;
         stringMap.put("<<START>>",0);
-        stringMap.put("<<STOP>>",0);
+        stringMap.put("<<STOP>>", 1);
 
         for(String t:tags){
             stringMap.put(t,index++);
