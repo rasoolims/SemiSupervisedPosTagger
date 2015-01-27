@@ -91,7 +91,7 @@ public class Options {
         } else if (tag || tagPartial) {
             output.append("input file: " + inputPath + "\n");
             output.append("output file: " + outputPath + "\n");
-            output.append("model file: " + trainPath + "\n");
+            output.append("model file: " + modelPath + "\n");
         }
         return output.toString();
     }
