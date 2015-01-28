@@ -17,13 +17,48 @@ import java.util.ArrayList;
  */
 
 public class Tagger {
-    public static String[] tag(final String line, final IndexMaps maps, final AveragedPerceptron classifier, final boolean isDecode, final String delim, final boolean useBeamSearch, final int beamSize, final boolean usePartialInfo) {
-        Sentence sentence = new Sentence(line, maps, delim);
-        return tag(sentence, maps, classifier, isDecode, useBeamSearch, beamSize,usePartialInfo);
-    }
+    float bigramScore[][] ;
+    float trigramScore[][][];
+   public AveragedPerceptron perceptron;
+    IndexMaps maps;
+    public boolean useBeamSearch;
+    public int beamSize;
+    
+    public Tagger(String modelPath) throws  Exception{
+        System.out.print("loading the model...");
+        ObjectInput modelReader = new ObjectInputStream(new FileInputStream(modelPath));
+        InfoStruct info = (InfoStruct) modelReader.readObject();
+        this.perceptron=new AveragedPerceptron(info);
+        this.maps=(IndexMaps) modelReader.readObject();
+        int tagSize=perceptron.tagSize();
+        int featSize=perceptron.featureSize();
 
-    public static String[] tag(final Sentence sentence, final IndexMaps maps, final AveragedPerceptron classifier, final boolean isDecode, final boolean useBeamSearch, final int beamSize, final boolean usePartialInfo) {
-        int[] tags = tag(sentence, classifier, isDecode, useBeamSearch, beamSize,usePartialInfo);
+        bigramScore = new float[tagSize][tagSize];
+        trigramScore = new float[tagSize][tagSize][tagSize];
+
+        for (int v = 0; v < perceptron.tagSize(); v++) {
+            for (int u = 0; u < perceptron.tagSize(); u++) {
+                bigramScore[u][v] = perceptron.score(v, featSize -2, u, true);
+                for (int w = 0; w < tagSize; w++) {
+                    int bigram = (w << 10) + u;
+                    trigramScore[w][u][v] = perceptron.score(v, featSize -1, bigram, true);
+                }
+            }
+        }
+        this.useBeamSearch=info.useBeamSearch;
+        this.beamSize=info.beamSize;
+        
+        System.out.print("done!\n");
+        if (!info.useBeamSearch)
+            System.out.print("using Viterbi algorithm\n");
+        else
+            System.out.print("using beam search algorithm with beam size: " + info.beamSize + "\n");
+
+    }
+    
+    public String[] tag(final String line,  final String delim, final boolean usePartialInfo) {
+        Sentence sentence = new Sentence(line, maps, delim);
+        int[] tags = tag(sentence, usePartialInfo);
         String[] output = new String[tags.length];
         for (int i = 0; i < tags.length; i++)
             output[i] = maps.reversedMap[tags[i]];
@@ -32,22 +67,17 @@ public class Tagger {
 
     public static int[] tag(final Sentence sentence, final AveragedPerceptron classifier, final boolean isDecode, final boolean useBeamSearch, final int beamSize, final boolean usePartialInfo) {
         return useBeamSearch ?
-                BeamTagger.thirdOrder(sentence, classifier, isDecode,beamSize,usePartialInfo):Viterbi.thirdOrder(sentence, classifier, isDecode);
+                BeamTagger.thirdOrder(sentence, classifier, isDecode,beamSize,usePartialInfo,null):Viterbi.thirdOrder(sentence, classifier, isDecode,null);
     }
 
-    public static void tag(final String modelPath, final String inputPath, final String outputPath,final String delim)throws Exception{
+    public  int[] tag(final Sentence sentence,  final boolean usePartialInfo) {
+        return useBeamSearch ?
+                BeamTagger.thirdOrder(sentence, perceptron, true,beamSize,usePartialInfo,this):Viterbi.thirdOrder(sentence, perceptron, true,this);
+    }
+
+    public void tag(final String inputPath, final String outputPath,final String delim)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
-        System.out.print("loading the model...");
-        ObjectInput modelReader = new ObjectInputStream(new FileInputStream(modelPath));
-        InfoStruct info = (InfoStruct) modelReader.readObject();
-        AveragedPerceptron perceptron=new AveragedPerceptron(info);
-        IndexMaps maps=(IndexMaps) modelReader.readObject();
-        System.out.print("done!\n");
-        if (!info.useBeamSearch)
-            System.out.print("using Viterbi algorithm\n");
-        else
-            System.out.print("using beam search algorithm with beam size: " + info.beamSize + "\n");
 
         int ln=0;
         String line;
@@ -64,8 +94,11 @@ public class Tagger {
             }
             Sentence sentence=new Sentence(words,maps);
 
-            String[] tags=tag(sentence,maps,perceptron,true,info.useBeamSearch,info.beamSize,false);
-
+            int[] t=tag(sentence,false);
+            String[] tags = new String[t.length];
+            for (int i = 0; i < tags.length; i++)
+                tags[i] = maps.reversedMap[t[i]];
+            
             StringBuilder output=new StringBuilder();
             for(int i=0;i<tags.length;i++){
                 output.append(words.get(i)+delim+tags[i]+" ");
@@ -77,19 +110,9 @@ public class Tagger {
         writer.close();
     }
 
-    public static void partialTag(final String modelPath, final String inputPath, final String outputPath,final String delim)throws Exception{
+    public  void partialTag( final String inputPath, final String outputPath,final String delim)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
-        System.out.print("loading the model...");
-        ObjectInput modelReader = new ObjectInputStream(new FileInputStream(modelPath));
-        InfoStruct info = (InfoStruct) modelReader.readObject();
-        AveragedPerceptron perceptron=new AveragedPerceptron(info);
-        IndexMaps maps=(IndexMaps) modelReader.readObject();
-        System.out.print("done!\n");
-        if (!info.useBeamSearch)
-            System.out.print("using Viterbi algorithm\n");
-        else
-            System.out.print("using beam search algorithm with beam size: " + info.beamSize + "\n");
 
         int ln=0;
         String line;
@@ -104,7 +127,10 @@ public class Tagger {
                 System.out.print(ln+"...");
             Sentence sentence=new Sentence(line,maps,delim);
 
-            String[] tags=tag(sentence,maps,perceptron,true,info.useBeamSearch,info.beamSize,true);
+            int[] t=tag(sentence,false);
+            String[] tags = new String[t.length];
+            for (int i = 0; i < tags.length; i++)
+                tags[i] = maps.reversedMap[t[i]];
 
             StringBuilder output=new StringBuilder();
             for(int i=0;i<tags.length;i++){

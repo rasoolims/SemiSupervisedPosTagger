@@ -31,9 +31,12 @@ public class FileManager {
         return sentences;
     }
 
-    public static IndexMaps createIndexMaps(String filePath, String delim) throws Exception{
+    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile) throws Exception{
         System.out.print("creating index maps...");
         HashMap<String, Integer> stringMap=new HashMap<String, Integer>();
+        HashMap<String,Integer> clusterMap=new HashMap<String, Integer>();
+        HashMap<Integer,Integer> cluster4Map=new HashMap<Integer, Integer>();
+        HashMap<Integer,Integer> cluster6Map=new HashMap<Integer, Integer>();
 
         BufferedReader reader=new BufferedReader(new FileReader(filePath));
 
@@ -70,6 +73,46 @@ public class FileManager {
         for(String t:tags){
             stringMap.put(t,index++);
         }
+
+        if(clusterFile.length()>0){
+            reader = new BufferedReader(new FileReader(clusterFile));
+            while ((line = reader.readLine()) != null) {
+                String[] spl = line.trim().split("\t");
+                if (spl.length > 2) {
+                    String cluster = spl[0];
+                    String word=spl[1];
+                    String prefix4=cluster.substring(0,Math.min(4,cluster.length()));
+                    String prefix6=cluster.substring(0,Math.min(6,cluster.length()));
+                    int clusterNum=index;
+
+                    if (!stringMap.containsKey(cluster)) {
+                        clusterMap.put(word,index);
+                        stringMap.put(cluster, index++);
+                    }else{
+                        clusterNum= stringMap.get(cluster);
+                        clusterMap.put(word,clusterNum);
+                    }
+
+                    int pref4Id=index;
+                    if (!stringMap.containsKey(prefix4)) {
+                        stringMap.put(prefix4, index++);
+                    }  else{
+                        pref4Id=stringMap.get(prefix4);
+                    }
+
+                    int pref6Id=index;
+                    if (!stringMap.containsKey(prefix6)) {
+                        stringMap.put(prefix6, index++);
+                    }else{
+                        pref6Id=stringMap.get(prefix6);
+                    }
+
+                    cluster4Map.put(clusterNum,pref4Id);
+                    cluster6Map.put(clusterNum,pref6Id);
+                }
+            }
+        }
+        
         for(String w:words){
             if(!tags.contains(w))
                 stringMap.put(w,index++);
@@ -83,6 +126,6 @@ public class FileManager {
         int tagSize=tags.size()+2;
         System.out.print("done!\n");
 
-        return  new IndexMaps(tagSize,stringMap,reversedMap);
+        return  new IndexMaps(tagSize,stringMap,reversedMap,cluster4Map,cluster6Map,clusterMap);
     }
 }

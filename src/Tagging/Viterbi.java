@@ -13,7 +13,7 @@ import Structures.SpecialWords;
  */
 
 public class Viterbi {
-    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode) {
+    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode,final Tagger tagger) {
         int len = sentence.words.length + 1;
 
         float inf = Float.POSITIVE_INFINITY;
@@ -22,24 +22,29 @@ public class Viterbi {
         int featSize = perceptron.featureSize();
         // pai score values
         float pai[][][] = new float[len][tagSize][tagSize];
-        float emission_score[][] = new float[len - 1][tagSize];
-        float bigram_score[][] = new float[tagSize][tagSize];
-        float trigram_score[][][] = new float[tagSize][tagSize][tagSize];
+        float emissionScore[][] = new float[len - 1][tagSize];
+        float bigramScore[][] = new float[tagSize][tagSize];
+        float trigramScore[][][] = new float[tagSize][tagSize][tagSize];
 
-        for (int v = 0; v < tagSize; v++) {
-            for (int u = 0; u < tagSize; u++) {
-                bigram_score[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
-                for (int w = 0; w < tagSize; w++) {
-                    int bigram = (w << 10) + u;
-                    trigram_score[w][u][v] = perceptron.score(v, featSize - 1, bigram, isDecode);
+        if (!isDecode) {
+            for (int v = 0; v < tagSize; v++) {
+                for (int u = 0; u < tagSize; u++) {
+                    bigramScore[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
+                    for (int w = 0; w < tagSize; w++) {
+                        int bigram = (w << 10) + u;
+                        trigramScore[w][u][v] = perceptron.score(v, featSize - 1, bigram, isDecode);
+                    }
                 }
             }
+        } else {
+            bigramScore = tagger.bigramScore;
+            trigramScore = tagger.trigramScore;
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
-                emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
+                emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
             }
         }
 
@@ -66,7 +71,7 @@ public class Viterbi {
                     for (int w = 0; w < tagSize; w++) {
                         if (w == 1 || (w == 0 && k > 1) || (k == 1 && w != 0))
                             continue;
-                        float score = trigram_score[w][u][v] + bigram_score[u][v] + emission_score[k - 1][v] + pai[k - 1][w][u];
+                        float score = trigramScore[w][u][v] + bigramScore[u][v] + emissionScore[k - 1][v] + pai[k - 1][w][u];
                         if (score > max_val) {
                             max_val = score;
                             argmax = w;
@@ -84,7 +89,7 @@ public class Viterbi {
         if (sentence.words.length > 1) {
             for (int u = 2; u < tagSize; u++) {
                 for (int v = 2; v < tagSize; v++) {
-                    float score = bigram_score[v][1] + trigram_score[u][v][1] + pai[len - 1][u][v];
+                    float score = bigramScore[v][1] + trigramScore[u][v][1] + pai[len - 1][u][v];
                     if (score > maxVal) {
                         maxVal = score;
                         y1 = u;
@@ -94,7 +99,7 @@ public class Viterbi {
             }
         } else {
             for (int v = 2; v < tagSize; v++) {
-                float score = bigram_score[v][SpecialWords.stop.value] + trigram_score[SpecialWords.start.value][v][SpecialWords.stop.value] + pai[len - 1][SpecialWords.start.value][v];
+                float score = bigramScore[v][SpecialWords.stop.value] + trigramScore[SpecialWords.start.value][v][SpecialWords.stop.value] + pai[len - 1][SpecialWords.start.value][v];
                 if (score > maxVal) {
                     maxVal = score;
                     y2 = v;

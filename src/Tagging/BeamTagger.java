@@ -16,9 +16,8 @@ import java.util.TreeSet;
 
 public class BeamTagger {
 
-    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, int beamWidth,final boolean usePartialInfo){
+    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, int beamWidth,final boolean usePartialInfo,final Tagger tagger){
         int len = sentence.words.length + 1;
-        float inf = Float.POSITIVE_INFINITY;
 
         int tagSize = perceptron.tagSize();
         int featSize = perceptron.featureSize();
@@ -31,15 +30,19 @@ public class BeamTagger {
         float emission_score[][] = new float[len - 1][tagSize];
         float bigramScore[][] = new float[tagSize][tagSize];
         float trigramScore[][][] = new float[tagSize][tagSize][tagSize];
-
-        for (int v = 0; v < tagSize; v++) {
-            for (int u = 0; u < tagSize; u++) {
-                bigramScore[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
-                for (int w = 0; w < tagSize; w++) {
-                    int bigram = (w << 10) + u;
-                    trigramScore[w][u][v] = perceptron.score(v, featSize - 1, bigram, isDecode);
+        if(!isDecode) {
+            for (int v = 0; v < tagSize; v++) {
+                for (int u = 0; u < tagSize; u++) {
+                    bigramScore[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
+                    for (int w = 0; w < tagSize; w++) {
+                        int bigram = (w << 10) + u;
+                        trigramScore[w][u][v] = perceptron.score(v, featSize -1, bigram, isDecode);
+                    }
                 }
             }
+        }else{
+            bigramScore=tagger.bigramScore;
+            trigramScore=tagger.trigramScore;
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
@@ -61,14 +64,13 @@ public class BeamTagger {
                 int currentPosition=state.currentPosition;
                 int prevTag=currentPosition>0?state.tags[currentPosition-1]:0;
                 int prev2Tag=currentPosition>1?state.tags[currentPosition-2]:0;
+                int prev3Tag=currentPosition>2?state.tags[currentPosition-3]:0;
 
                 ArrayList<Integer> possibleTags=new ArrayList<Integer>();
                 if(sentence.tags[i]==-1 || ! usePartialInfo)
                     possibleTags=allTags;
                 else
                     possibleTags.add(sentence.tags[i]);
-
-
 
                 for(int tagDecision : possibleTags) {
                     float es=emission_score[currentPosition][tagDecision];
@@ -100,6 +102,7 @@ public class BeamTagger {
             int currentPosition = state.currentPosition;
             int prevTag = currentPosition > 0 ? state.tags[currentPosition - 1] : 0;
             int prev2Tag = currentPosition > 1 ? state.tags[currentPosition - 2] : 0;
+            int prev3Tag = currentPosition > 2 ? state.tags[currentPosition - 3] : 0;
             int tagDecision = SpecialWords.stop.value;
             float bs = bigramScore[prevTag][tagDecision];
             float ts = trigramScore[prev2Tag][prevTag][tagDecision];

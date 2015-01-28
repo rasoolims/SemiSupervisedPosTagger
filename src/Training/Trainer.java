@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class Trainer {
     public static void train(final Options options, final int featSize) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim);
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile);
 
         // reading train and dev sentences to a vector
         ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps, options.delim);
@@ -50,12 +50,10 @@ public class Trainer {
             InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth);
             System.out.print("saving the model...");
             saveModel(maps, info, options.modelPath + ".iter_" + iter);
-            if (iter == 1)
-                Tagger.tag(options.modelPath + ".iter_" + iter, options.inputPath, "/tmp/ox3", options.delim);
             System.out.print("done!\n");
 
             if (dev_sentences.size() > 0)
-                devIter(dev_sentences, info, options.useBeamSearch, options.beamWidth);
+                devIter(dev_sentences,options.modelPath + ".iter_" + iter);
         }
     }
 
@@ -107,33 +105,35 @@ public class Trainer {
         for (int t = 0; t < currentPosition; t++) {
             int predicted = predictedTags[t];
             int gold = sen.tags[t];
-            int predicted_prev_tag = 0;
+            int predictedPrevTag = 0;
             int predicted_prev2_tag = 0;
-            int gold_prev_tag = 0;
+            int goldPrevTag = 0;
             int gold_prev2_tag = 0;
 
             if (t > 0) {
-                predicted_prev_tag = predictedTags[t - 1];
-                gold_prev_tag = sen.tags[t - 1];
+                predictedPrevTag = predictedTags[t - 1];
+                goldPrevTag = sen.tags[t - 1];
                 if (t > 1) {
                     predicted_prev2_tag = predictedTags[t - 2];
                     gold_prev2_tag = sen.tags[t - 2];
                 }
             }
 
-            if (gold != predicted || predicted_prev_tag != gold_prev_tag || predicted_prev2_tag != gold_prev2_tag) {
-                int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predicted_prev_tag, featSize);
-                int[] gold_features = sen.getFeatures(t, gold_prev2_tag, gold_prev_tag, featSize);
+            if (gold != predicted || predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag) {
+                int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
+                int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
                 for (int f = 0; f < featSize; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 
-                    if (pfeat != -1)
-                        classifier.changeWeight(predicted, f, pfeat, -1);
+                    if(pfeat!=gfeat || predicted!=gold) {
+                        if (pfeat != -1)
+                            classifier.changeWeight(predicted, f, pfeat, -1);
 
-                    if (gfeat != -1)
-                        classifier.changeWeight(gold, f, gfeat, +1);
+                        if (gfeat != -1)
+                            classifier.changeWeight(gold, f, gfeat, +1);
+                    }
                 }
             }
         }
@@ -155,7 +155,7 @@ public class Trainer {
                 }
             }
 
-            if (predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag) {
+            if (predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag ) {
                 int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
                 int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
@@ -163,18 +163,20 @@ public class Trainer {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 
-                    if (pfeat != -1)
-                        classifier.changeWeight(1, f, pfeat, -1);
+                    if(pfeat!=gfeat) {
+                        if (pfeat != -1)
+                            classifier.changeWeight(1, f, pfeat, -1);
 
-                    if (gfeat != -1)
-                        classifier.changeWeight(1, f, gfeat, +1);
+                        if (gfeat != -1)
+                            classifier.changeWeight(1, f, gfeat, +1);
+                    }
                 }
             }
         }
     }
 
-    private static void devIter(ArrayList<Sentence> dev_sentences, InfoStruct info, boolean useBeamSearch, int beamSize) {
-        AveragedPerceptron perceptron = new AveragedPerceptron(info);
+    private static void devIter(ArrayList<Sentence> dev_sentences, String modelPath) throws Exception{
+        Tagger tagger=new Tagger(modelPath);
         System.out.print("\ndecoding...");
         int corr = 0;
         int all = 0;
@@ -186,7 +188,7 @@ public class Trainer {
             Sentence sen = dev_sentences.get(s);
             if ((s + 1) % 1000 == 0)
                 System.out.print((s + 1) + " ");
-            int[] predictedTags = Tagger.tag(sen, perceptron, true, useBeamSearch, beamSize, false);
+            int[] predictedTags = tagger.tag(sen,  false);
 
             assert (predictedTags.length == sen.tags.length);
 

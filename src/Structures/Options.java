@@ -21,6 +21,7 @@ public class Options {
     public String devPath;
     public String inputPath;
     public String outputPath;
+    public String clusterFile;
     public UpdateMode updateMode;
 
     public Options() {
@@ -32,6 +33,7 @@ public class Options {
         trainingIter = 20;
         delim="_";
         modelPath="";
+        clusterFile="";
         trainPath="";
         devPath="";
         inputPath="";
@@ -62,6 +64,8 @@ public class Options {
             }
             if(args[i].equals("-output") && i<args.length-1)
                 outputPath = args[i + 1];
+            if(args[i].equals("-cluster") && i<args.length-1)
+                clusterFile = args[i + 1];
             if(args[i].equals("-dev") && i<args.length-1)
                 devPath = args[i + 1];
             if(args[i].equals("-delim") && i<args.length-1)
@@ -83,6 +87,7 @@ public class Options {
             output.append("train file: " + trainPath + "\n");
             output.append("model file: " + modelPath + "\n");
             output.append("dev file: " + devPath + "\n");
+            output.append("cluster file: " + clusterFile + "\n");
             if (!useBeamSearch)
                 output.append("using Viterbi algorithm\n");
             else {
@@ -102,6 +107,7 @@ public class Options {
         output.append(">>  java -jar SemiSupervisedTagger.jar train -input [input-file] -model [model-file]\n");
         output.append("** Other Options:\n");
         output.append("     -dev [dev-file]  dev file address\n");
+        output.append("     -cluster [cluster-file]  brown cluster file address\n");
         output.append("     -viterbi   if you want to use Viterbi decoding (default: beam decoding)\n");
         output.append("     -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");

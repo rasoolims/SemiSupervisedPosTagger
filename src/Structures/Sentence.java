@@ -217,7 +217,7 @@ public class Sentence {
 
     }
 
-    public int[] getFeatures(final int position, final int prev2Tag, final int prevTag, final int featSize){
+    public int[] getFeatures(final int position,  final int prev2Tag, final int prevTag, final int featSize){
         int[] features=getEmissionFeatures(position,featSize);
         int index=featSize-2;
 
@@ -225,6 +225,7 @@ public class Sentence {
 
         int bigram=  (prev2Tag<<10) +  prevTag;
         features[index++]=bigram;
+
 
         return  features;
     }
