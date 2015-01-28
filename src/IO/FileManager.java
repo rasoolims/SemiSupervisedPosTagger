@@ -114,10 +114,11 @@ public class FileManager {
         }
         
         for(String w:words){
-            if(!tags.contains(w))
+            if(!stringMap.containsKey(w))
                 stringMap.put(w,index++);
         }
 
+        System.out.println(stringMap.size());
         String[] reversedMap=new String[stringMap.size()];
         for(String k:stringMap.keySet()){
             reversedMap[stringMap.get(k)]=k;

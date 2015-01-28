@@ -34,9 +34,9 @@ public class IndexMaps  implements Serializable {
 
     public int[] clusterIds(String word){
         int[] ids=new int[3];
-        ids[0]=-100;
-        ids[1]=-100;
-        ids[2]=-100;
+        ids[0]=SpecialWords.unknown.value;
+        ids[1]=SpecialWords.unknown.value;
+        ids[2]=SpecialWords.unknown.value;
         if(brownFullClusters.containsKey(word))
             ids[0]=brownFullClusters.get(word);
 

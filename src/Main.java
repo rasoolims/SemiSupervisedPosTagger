@@ -12,11 +12,12 @@ import Training.Trainer;
 public class Main {
     public static void main(String[] args) throws Exception {
         Options options = new Options(args);
-        System.out.println(options);
 
+        System.out.println(options);
+        
 
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, 18);
+            Trainer.train(options, 21);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);
             tagger.tag( options.inputPath, options.outputPath, options.delim);

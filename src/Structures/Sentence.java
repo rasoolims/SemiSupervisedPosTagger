@@ -17,6 +17,7 @@ public class Sentence {
 
     public int[][] prefixes;
     public int[][] suffixes;
+    public int[][] brownClusters;
 
     public boolean[] containsNumber;
     public boolean[] containsHyphen;
@@ -36,6 +37,7 @@ public class Sentence {
         this.wordStrs=new String[words.size()];
         prefixes=new int[words.size()][4];
         suffixes=new int[words.size()][4];
+        brownClusters=new int[words.size()][3];
         containsNumber=new boolean[words.size()];
         containsHyphen=new boolean[words.size()];
         containsUpperCaseLetter=new boolean[words.size()];
@@ -70,6 +72,8 @@ public class Sentence {
                 }
             }
 
+            brownClusters[i]= maps.clusterIds(word);
+            
             boolean hasUpperCase=false;
             boolean hasHyphen=false;
             boolean hasNumber=false;
@@ -136,6 +140,7 @@ public class Sentence {
                     suffixes[i][p] = SpecialWords.unknown.value;
                 }
             }
+            brownClusters[i]= maps.clusterIds(word);
 
             boolean hasUpperCase = false;
             boolean hasHyphen = false;
@@ -212,6 +217,15 @@ public class Sentence {
         features[index++]=prev2Word;
         features[index++]=nextWord;
         features[index++]=next2Word;
+        if(position>=0 && position<length) {
+            features[index++] = brownClusters[position][0];
+            features[index++] = brownClusters[position][1];
+            features[index++] = brownClusters[position][2];
+        }else{
+            features[index++]=SpecialWords.unknown.value;
+            features[index++]=SpecialWords.unknown.value;
+            features[index++]=SpecialWords.unknown.value;
+        }
 
         return  features;
 
