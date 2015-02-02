@@ -7,6 +7,7 @@
 package Learning;
 
 import Structures.InfoStruct;
+import Structures.SpecialWords;
 
 import java.util.HashMap;
 
@@ -105,7 +106,7 @@ public class AveragedPerceptron {
         }
 
         for (int i = 0; i < features.length; i++) {
-            if(features[i]==-1)
+            if(features[i]== SpecialWords.unknown.value)
                 continue;
             Float value = (weights[i]).get(features[i]);
 
@@ -116,7 +117,7 @@ public class AveragedPerceptron {
     }
 
     public float score(final int tagIndex, final int featIndex, final int feat, final boolean isDecode) {
-        if(feat==-1)
+        if(feat==SpecialWords.unknown.value)
             return 0;
         HashMap<Integer,Float> map=isDecode?averagedWeights[tagIndex][featIndex]:featureWeights[tagIndex][featIndex];
 

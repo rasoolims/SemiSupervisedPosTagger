@@ -88,9 +88,9 @@ public class Tagger {
             String[] flds=line.trim().split(" ");
             ArrayList<String> words=new ArrayList<String>(flds.length);
             for(int i=0;i<flds.length;i++){
-                if(flds[i].length()==0)
+                if(flds[i].trim().length()==0)
                     continue;
-                words.add(flds[i]);
+                words.add(flds[i].trim());
             }
             Sentence sentence=new Sentence(words,maps);
 

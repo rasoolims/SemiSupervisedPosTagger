@@ -110,6 +110,7 @@ public class Sentence {
         containsNumber=new boolean[words.size()];
         containsHyphen=new boolean[words.size()];
         containsUpperCaseLetter=new boolean[words.size()];
+        brownClusters=new int[words.size()][3];
 
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
@@ -196,33 +197,51 @@ public class Sentence {
         int prev2Word=SpecialWords.start.value;
         int nextWord=SpecialWords.stop.value;
         int next2Word=SpecialWords.stop.value;
-
+        int prevCluster=SpecialWords.unknown.value;
+        int prev2Cluster=SpecialWords.unknown.value;
+        int nextCluster=SpecialWords.unknown.value;
+        int next2Cluster=SpecialWords.unknown.value;
+        
         int prevPosition=position-1;
         if(prevPosition>=0){
             prevWord=words[prevPosition];
-            int prev2Position=prevPosition-1;
-            if(prev2Position>=0)
-                prev2Word=words[prev2Position];
+            prevCluster=brownClusters[prevPosition][0];
+            int prev2Position=prevPosition-1;     
+            
+            if(prev2Position>=0) {
+                prev2Word = words[prev2Position];
+                prev2Cluster=brownClusters[prev2Position][0];
+            }
         }
 
         int nextPosition=position+1;
         if(nextPosition<length){
             nextWord=words[nextPosition];
+            nextCluster=brownClusters[nextPosition][0];
             int next2Position=nextPosition+1;
-            if(next2Position<length)
-                next2Word=words[next2Position];
+            if(next2Position<length) {
+                next2Word = words[next2Position];
+                next2Cluster=  brownClusters[next2Position][0];
+            }
         }
 
         features[index++]=prevWord;
         features[index++]=prev2Word;
         features[index++]=nextWord;
         features[index++]=next2Word;
+
+        features[index++]=prevCluster;
+        //features[index++]=prev2Cluster;
+        features[index++]=nextCluster;
+        //features[index++]=next2Cluster;
+        
+        
         if(position>=0 && position<length) {
-            features[index++] = brownClusters[position][0];
+          //  features[index++] = brownClusters[position][0];
             features[index++] = brownClusters[position][1];
             features[index++] = brownClusters[position][2];
         }else{
-            features[index++]=SpecialWords.unknown.value;
+          //  features[index++]=SpecialWords.unknown.value;
             features[index++]=SpecialWords.unknown.value;
             features[index++]=SpecialWords.unknown.value;
         }
@@ -239,7 +258,6 @@ public class Sentence {
 
         int bigram=  (prev2Tag<<10) +  prevTag;
         features[index++]=bigram;
-
 
         return  features;
     }

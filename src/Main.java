@@ -17,7 +17,7 @@ public class Main {
         
 
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, 21);
+            Trainer.train(options, 22);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);
             tagger.tag( options.inputPath, options.outputPath, options.delim);
