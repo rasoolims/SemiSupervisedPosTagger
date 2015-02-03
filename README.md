@@ -8,6 +8,7 @@ Pos Tagger
 		* Other Options:
      
 				* -dev [dev-file]  dev file address
+				* -cluster [cluster-file]  brown cluster file address
 				* -viterbi   if you want to use Viterbi decoding (default: beam decoding)
 				* -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)
 				* -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim /
