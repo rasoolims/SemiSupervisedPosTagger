@@ -11,6 +11,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by Mohammad Sadegh Rasooli.
@@ -219,7 +220,9 @@ public class Trainer {
     }
 
     public static void saveModel(IndexMaps maps, InfoStruct info, String modelPath) throws Exception {
-        ObjectOutput writer = new ObjectOutputStream(new FileOutputStream(modelPath));
+        FileOutputStream fos = new FileOutputStream(modelPath);
+        GZIPOutputStream gz = new GZIPOutputStream(fos);
+        ObjectOutput writer = new ObjectOutputStream(gz);
         writer.writeObject(info);
         writer.writeObject(maps);
         writer.flush();

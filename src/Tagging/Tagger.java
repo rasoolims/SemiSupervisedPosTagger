@@ -7,6 +7,7 @@ import Structures.Sentence;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Created by Mohammad Sadegh Rasooli.
@@ -26,7 +27,10 @@ public class Tagger {
     
     public Tagger(String modelPath) throws  Exception{
         System.out.print("loading the model...");
-        ObjectInput modelReader = new ObjectInputStream(new FileInputStream(modelPath));
+        FileInputStream fos = new FileInputStream(modelPath);
+        GZIPInputStream gz = new GZIPInputStream(fos);
+        ObjectInputStream modelReader = new ObjectInputStream(gz);
+        
         InfoStruct info = (InfoStruct) modelReader.readObject();
         this.perceptron=new AveragedPerceptron(info);
         this.maps=(IndexMaps) modelReader.readObject();
