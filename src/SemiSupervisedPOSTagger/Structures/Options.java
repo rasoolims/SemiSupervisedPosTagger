@@ -22,6 +22,7 @@ public class Options {
     public String inputPath;
     public String outputPath;
     public String clusterFile;
+    public String scoreFile;
     public UpdateMode updateMode;
 
     public Options() {
@@ -66,6 +67,8 @@ public class Options {
                 outputPath = args[i + 1];
             if(args[i].equals("-cluster") && i<args.length-1)
                 clusterFile = args[i + 1];
+            if(args[i].equals("-score") && i<args.length-1)
+                scoreFile = args[i + 1];
             if(args[i].equals("-dev") && i<args.length-1)
                 devPath = args[i + 1];
             if(args[i].equals("-delim") && i<args.length-1)
@@ -97,6 +100,7 @@ public class Options {
             output.append("input file: " + inputPath + "\n");
             output.append("output file: " + outputPath + "\n");
             output.append("model file: " + modelPath + "\n");
+            output.append("score file: " + scoreFile + "\n");
         }
         return output.toString();
     }
@@ -119,6 +123,7 @@ public class Options {
         output.append("* Tag a file:\n");
         output.append(">>  java -jar SemiSupervisedTagger.jar tag -input [input-file] -model [model-file] -output [output-file]\n");
         output.append("** Other Options:\n");
+        output.append("     -score [score-file]   score file path\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
         output.append("\n\n");
 
@@ -126,6 +131,7 @@ public class Options {
         output.append(">>  java -jar SemiSupervisedTagger.jar partial_tag -input [input-file] -model [model-file] -output [output-file]\n");
         output.append("** For words with no tag information, put *** as the tag; e.g. After_IN our_*** discussion_*** ._.\n");
         output.append("** Other Options:\n");
+        output.append("     -score [score-file]   score file path\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");
         output.append("\n\n");
 

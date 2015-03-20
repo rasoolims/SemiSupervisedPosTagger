@@ -85,10 +85,17 @@ public class Tagger {
                 BeamTagger.thirdOrderWithScore(sentence, perceptron, true, beamSize, usePartialInfo, this):Viterbi.thirdOrderWithScore(sentence, perceptron, true,this);
     }
 
-    public void tag(final String inputPath, final String outputPath,final String delim)throws Exception{
+    public void tag(final String inputPath, final String outputPath,final String delim, final String scoreFile)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
 
+        boolean putScore=false;
+        BufferedWriter scoreWriter=null;
+        if(scoreFile!=null & !scoreFile.equals("")) {
+            putScore = true;
+            scoreWriter=new BufferedWriter(new FileWriter(scoreFile));
+        }
+        
         int ln=0;
         String line;
         while((line=reader.readLine())!=null){
@@ -103,8 +110,9 @@ public class Tagger {
                 words.add(flds[i].trim());
             }
             Sentence sentence=new Sentence(words,maps);
-
-            int[] t=tag(sentence,false);
+                      
+            Pair<int[],Float> ts=tagWithScore(sentence,false);
+            int[] t=ts.first;
             String[] tags = new String[t.length];
             for (int i = 0; i < tags.length; i++)
                 tags[i] = maps.reversedMap[t[i]];
@@ -114,10 +122,18 @@ public class Tagger {
                 output.append(words.get(i)+delim+tags[i]+" ");
             }
             writer.write(output.toString().trim()+"\n");
+            
+            
+            if(putScore) {
+                float normalizedScore=  ts.second/tags.length;
+                scoreWriter.write(normalizedScore+"\n");
+            }
         }
         System.out.print(ln+"\n");
         writer.flush();
         writer.close();
+        scoreWriter.flush();
+        scoreWriter.close();
     }
 
     public ArrayList<Pair<String[],Float>> getPossibleTagReplacements(Sentence sentence){
@@ -133,10 +149,17 @@ public class Tagger {
         return replacements;
     }
     
-    public  void partialTag( final String inputPath, final String outputPath,final String delim)throws Exception{
+    public  void partialTag( final String inputPath, final String outputPath,final String delim,String scoreFile)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
 
+        boolean putScore=false;
+        BufferedWriter scoreWriter=null;
+        if(scoreFile!=null & !scoreFile.equals("")) {
+            putScore = true;
+            scoreWriter=new BufferedWriter(new FileWriter(scoreFile));
+        }
+        
         int ln=0;
         String line;
         while((line=reader.readLine())!=null){
@@ -150,7 +173,9 @@ public class Tagger {
                 System.out.print(ln+"...");
             Sentence sentence=new Sentence(line,maps,delim);
 
-            int[] t=tag(sentence,false);
+            Pair<int[],Float> ts=tagWithScore(sentence,true);
+            int[] t=ts.first;
+            
             String[] tags = new String[t.length];
             for (int i = 0; i < tags.length; i++)
                 tags[i] = maps.reversedMap[t[i]];
@@ -160,10 +185,18 @@ public class Tagger {
                 output.append(sentence.wordStrs[i]+delim+tags[i]+" ");
             }
             writer.write(output.toString().trim()+"\n");
+
+            if(putScore) {
+                float normalizedScore=  ts.second/tags.length;
+                scoreWriter.write(normalizedScore+"\n");
+            }
         }
         System.out.print(ln+"\n");
         writer.flush();
         writer.close();
+
+        scoreWriter.flush();
+        scoreWriter.close();
     }
 
 
