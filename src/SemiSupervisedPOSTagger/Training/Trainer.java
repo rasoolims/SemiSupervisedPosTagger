@@ -50,7 +50,7 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + format.format(accuracy) + "\n");
 
-            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary());
+            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight());
             System.out.print("saving the model...");
             saveModel(maps, info, options.modelPath + ".iter_" + iter);
             System.out.print("done!\n");
@@ -140,11 +140,13 @@ public class Trainer {
                 }
                 
                if(gold != predicted ){
-                   int gCond=classifier.dictCondition(sen.words[t],gold);
+                //   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
+                   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
                    if(gCond!=-1)
                        classifier.changeWeight(gold, classifier.featureSize()-1, gCond, 1);
                    
-                   int pCond=classifier.dictCondition(sen.words[t],predicted);
+                  // int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
+                   int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
                    if(pCond!=-1)
                        classifier.changeWeight(predicted, classifier.featureSize()-1, pCond, -1);
                }

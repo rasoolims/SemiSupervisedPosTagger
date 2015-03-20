@@ -117,6 +117,8 @@ public class FileManager {
         for(String w:words){
             if(!stringMap.containsKey(w))
                 stringMap.put(w,index++);
+            if(!stringMap.containsKey(w.toLowerCase()))
+               stringMap.put(w.toLowerCase(),index++);
         }
 
         System.out.println(stringMap.size());
@@ -134,7 +136,7 @@ public class FileManager {
             while ((line = tagDictionaryReader.readLine()) != null) {
                 String[] spl = line.split("\t");
                 if (spl.length == 2) {
-                    String w = spl[0];
+                    String w = spl[0].toLowerCase();
                     String t = spl[1];
 
                     if (!stringMap.containsKey(w))

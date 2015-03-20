@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class Sentence {
     public int[] words;
+    public int[] lowerWords;
     public String[] wordStrs;
     public int[] tags;
 
@@ -33,6 +34,7 @@ public class Sentence {
                 tags.add(split[i].substring(index + 1));
             }
         this.words=new int[words.size()];
+        this.lowerWords=new int[words.size()];
         this.tags=new int[tags.size()];
         this.wordStrs=new String[words.size()];
         prefixes=new int[words.size()][4];
@@ -50,6 +52,11 @@ public class Sentence {
                 this.words[i]=  maps.stringMap.get(word);
             else
                 this.words[i]=SpecialWords.unknown.value;
+
+            if(maps.stringMap.containsKey(word.toLowerCase()))
+                this.lowerWords[i]=  maps.stringMap.get(word.toLowerCase());
+            else
+                this.lowerWords[i]=SpecialWords.unknown.value;
 
             for(int p=0;p<Math.min(4,word.length());p++) {
                 String prefix = lowerWord.substring(0, p + 1);
@@ -103,6 +110,7 @@ public class Sentence {
 
     public Sentence(ArrayList<String> words,IndexMaps maps){
         this.words=new int[words.size()];
+       this.lowerWords=new int[words.size()];
         this.wordStrs = new String[words.size()];
         this.tags=new int[words.size()];
         prefixes=new int[words.size()][4];
@@ -120,6 +128,11 @@ public class Sentence {
                 this.words[i] = maps.stringMap.get(word);
             else
                 this.words[i] = SpecialWords.unknown.value;
+
+            if (maps.stringMap.containsKey(word.toLowerCase()))
+                this.lowerWords[i] = maps.stringMap.get(word.toLowerCase());
+            else
+                this.lowerWords[i] = SpecialWords.unknown.value;
 
             for (int p = 0; p < Math.min(4, word.length()); p++) {
                 String prefix = lowerWord.substring(0, p + 1);
@@ -167,6 +180,7 @@ public class Sentence {
 
     public Sentence(String[] words,IndexMaps maps){
         this.words=new int[words.length];
+        this.lowerWords=new int[words.length];
         this.wordStrs = new String[words.length];
         this.tags=new int[words.length];
         prefixes=new int[words.length][4];
@@ -184,6 +198,11 @@ public class Sentence {
                 this.words[i] = maps.stringMap.get(word);
             else
                 this.words[i] = SpecialWords.unknown.value;
+
+            if (maps.stringMap.containsKey(word.toLowerCase()))
+                this.lowerWords[i] = maps.stringMap.get(word.toLowerCase());
+            else
+                this.lowerWords[i] = SpecialWords.unknown.value;
 
             for (int p = 0; p < Math.min(4, word.length()); p++) {
                 String prefix = lowerWord.substring(0, p + 1);

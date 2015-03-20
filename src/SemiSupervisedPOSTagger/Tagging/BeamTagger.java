@@ -49,7 +49,8 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+               // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                 emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
@@ -154,7 +155,8 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+              //  int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                     emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
@@ -251,7 +253,8 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, true);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+           //     int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                     emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,true) ;
             }
@@ -369,7 +372,8 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, false);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+             //   int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                     emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,false) ;
             }

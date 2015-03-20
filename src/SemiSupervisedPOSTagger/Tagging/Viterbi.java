@@ -46,7 +46,8 @@ public class Viterbi {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+               // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                     emissionScore[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
@@ -160,7 +161,8 @@ public class Viterbi {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-                int cond=perceptron.dictCondition(sentence.words[position],t);
+              //  int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
                 if(cond!=-1)
                     emissionScore[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
