@@ -15,9 +15,7 @@ import java.util.TreeSet;
  * Time: 7:02 PM
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
-
 public class BeamTagger {
-
     public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, int beamWidth,final boolean usePartialInfo,final Tagger tagger){
         int len = sentence.words.length + 1;
 

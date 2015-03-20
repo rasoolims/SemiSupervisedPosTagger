@@ -91,7 +91,7 @@ public class Tagger {
 
         boolean putScore=false;
         BufferedWriter scoreWriter=null;
-        if(scoreFile!=null & !scoreFile.equals("")) {
+        if(scoreFile!=null && !scoreFile.equals("")) {
             putScore = true;
             scoreWriter=new BufferedWriter(new FileWriter(scoreFile));
         }
