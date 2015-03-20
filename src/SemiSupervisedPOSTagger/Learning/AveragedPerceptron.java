@@ -10,6 +10,7 @@ import SemiSupervisedPOSTagger.Structures.InfoStruct;
 import SemiSupervisedPOSTagger.Structures.SpecialWords;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class AveragedPerceptron {
     /**
@@ -33,9 +34,10 @@ public class AveragedPerceptron {
      * This is the main part of the extension to the original perceptron algorithm which the averaging over all the history
      */
     public HashMap<Integer, Float>[][] averagedWeights;
-
-
-    public AveragedPerceptron(final int tagSize, final int featSize) {
+    
+    public HashMap<Integer,HashSet<Integer>> tagDictionary;
+    
+    public AveragedPerceptron(final int tagSize, final int featSize, HashMap<Integer,HashSet<Integer>> tagDictionary) {
         featureWeights = new HashMap[tagSize][featSize];
         for (int i = 0; i < featureWeights.length; i++)
             for (int j = 0; j < featureWeights[i].length; j++)
@@ -45,9 +47,10 @@ public class AveragedPerceptron {
         for (int i = 0; i < averagedWeights.length; i++)
             for (int j = 0; j < averagedWeights[i].length; j++)
                 averagedWeights[i][j] = new HashMap<Integer, Float>();
+        this.tagDictionary=tagDictionary;
     }
 
-    private AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights) {
+    private AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights,HashMap<Integer,HashSet<Integer>> tagDictionary) {
         featureWeights = new HashMap[tagSize][featSize];
         for (int i = 0; i < featureWeights.length; i++)
             for (int j = 0; j < featureWeights[i].length; j++)
@@ -55,10 +58,11 @@ public class AveragedPerceptron {
 
         iteration = 1;
         this.averagedWeights = averagedWeights;
+        this.tagDictionary=tagDictionary;
     }
 
     public AveragedPerceptron(InfoStruct info) {
-         this(info.tagSize,info.featSize,info.averagedWeights);
+         this(info.tagSize,info.featSize,info.averagedWeights,info.tagDictionary);
     }
 
     public float changeWeight(int tagIndex,int featIndex, int featureName, float change) {
@@ -161,5 +165,16 @@ public class AveragedPerceptron {
             }
         }
         return avg;
+    }
+    
+    public int dictCondition(int word, int tag){
+        int cond=-1;
+        if(tagDictionary.containsKey(word)){
+            cond=0;
+            if(tagDictionary.get(word).contains(tag))
+                cond=1;
+        }
+        return cond;
+        
     }
 }

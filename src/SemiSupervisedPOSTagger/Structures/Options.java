@@ -24,6 +24,7 @@ public class Options {
     public String clusterFile;
     public String scoreFile;
     public UpdateMode updateMode;
+    public String tagDictionaryPath;
 
     public Options() {
         this.useBeamSearch = true;
@@ -39,6 +40,7 @@ public class Options {
         devPath="";
         inputPath="";
         outputPath="";
+        tagDictionaryPath="";
         updateMode = UpdateMode.maxViolation;
     }
 
@@ -67,6 +69,8 @@ public class Options {
                 outputPath = args[i + 1];
             if(args[i].equals("-cluster") && i<args.length-1)
                 clusterFile = args[i + 1];
+            if(args[i].equals("-dict") && i<args.length-1)
+                tagDictionaryPath = args[i + 1];
             if(args[i].equals("-score") && i<args.length-1)
                 scoreFile = args[i + 1];
             if(args[i].equals("-dev") && i<args.length-1)
@@ -91,6 +95,7 @@ public class Options {
             output.append("model file: " + modelPath + "\n");
             output.append("dev file: " + devPath + "\n");
             output.append("cluster file: " + clusterFile + "\n");
+            output.append("tag dict file: " + tagDictionaryPath + "\n");
             if (!useBeamSearch)
                 output.append("using Viterbi algorithm\n");
             else {
@@ -100,6 +105,7 @@ public class Options {
             output.append("input file: " + inputPath + "\n");
             output.append("output file: " + outputPath + "\n");
             output.append("model file: " + modelPath + "\n");
+            output.append("tag dict file: " + tagDictionaryPath + "\n");
             output.append("score file: " + scoreFile + "\n");
         }
         return output.toString();
@@ -112,6 +118,7 @@ public class Options {
         output.append("** Other Options:\n");
         output.append("     -dev [dev-file]  dev file address\n");
         output.append("     -cluster [cluster-file]  brown cluster file address\n");
+        output.append("     -dict [tag-dict-file]  tag dictionary file address\n");
         output.append("     -viterbi   if you want to use Viterbi decoding (default: beam decoding)\n");
         output.append("     -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");

@@ -43,10 +43,10 @@ public class Tagger {
 
         for (int v = 0; v < perceptron.tagSize(); v++) {
             for (int u = 0; u < perceptron.tagSize(); u++) {
-                bigramScore[u][v] = perceptron.score(v, featSize -2, u, true);
+                bigramScore[u][v] = perceptron.score(v, featSize -3, u, true);
                 for (int w = 0; w < tagSize; w++) {
                     int bigram = (w << 10) + u;
-                    trigramScore[w][u][v] = perceptron.score(v, featSize -1, bigram, true);
+                    trigramScore[w][u][v] = perceptron.score(v, featSize -2, bigram, true);
                 }
             }
         }
@@ -157,7 +157,7 @@ public class Tagger {
 
         boolean putScore=false;
         BufferedWriter scoreWriter=null;
-        if(scoreFile!=null & !scoreFile.equals("")) {
+        if(scoreFile!=null && !scoreFile.equals("")) {
             putScore = true;
             scoreWriter=new BufferedWriter(new FileWriter(scoreFile));
         }

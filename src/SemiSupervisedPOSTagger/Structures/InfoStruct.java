@@ -4,6 +4,7 @@ import SemiSupervisedPOSTagger.Learning.AveragedPerceptron;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Mohammad Sadegh Rasooli.
@@ -15,16 +16,18 @@ import java.util.HashMap;
 
 public class InfoStruct implements Serializable {
     public HashMap<Integer, Float>[][] averagedWeights;
+   public HashMap<Integer,HashSet<Integer>> tagDictionary;
     public int tagSize;
     public int featSize;
     public int beamSize;
     public boolean useBeamSearch;
 
-    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize) {
+    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize,HashMap<Integer,HashSet<Integer>> tagDictionary) {
         averagedWeights = perceptron.getAveragedWeights();
         tagSize = perceptron.tagSize();
         featSize = perceptron.featureSize();
         this.beamSize=beamSize;
         this.useBeamSearch=useBeamSearch;
+        this.tagDictionary=tagDictionary;
     }
 }

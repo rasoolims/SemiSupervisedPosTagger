@@ -16,10 +16,9 @@ public class Main {
         Options options = new Options(args);
 
         System.out.println(options);
-        
 
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, 22);
+            Trainer.train(options, 23,options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);
             tagger.tag( options.inputPath, options.outputPath, options.delim,options.scoreFile);

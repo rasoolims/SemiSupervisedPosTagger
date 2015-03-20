@@ -2,6 +2,7 @@ package SemiSupervisedPOSTagger.Structures;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Mohammad Sadegh Rasooli.
@@ -17,15 +18,17 @@ public class IndexMaps  implements Serializable {
     private HashMap<Integer,Integer>  brown4Clusters;
     private HashMap<Integer,Integer>  brown6Clusters;
     private HashMap<String,Integer>  brownFullClusters;
+    private HashMap<Integer,HashSet<Integer>> tagDictionary;
 
     public IndexMaps(int tagSize, HashMap<String, Integer> stringMap, String[] reversedMap,
-                     HashMap<Integer,Integer>  brown4Clusters,HashMap<Integer,Integer>  brown6Clusters,HashMap<String,Integer>  brownFullClusters) {
+                     HashMap<Integer,Integer>  brown4Clusters,HashMap<Integer,Integer>  brown6Clusters,HashMap<String,Integer>  brownFullClusters,HashMap<Integer,HashSet<Integer>> tagDictionary) {
         this.tagSize = tagSize;
         this.stringMap = stringMap;
         this.reversedMap = reversedMap;
         this.brown4Clusters=brown4Clusters;
         this.brown6Clusters=brown6Clusters;
         this.brownFullClusters=brownFullClusters;
+        this.tagDictionary=tagDictionary;
     }
 
     public int[] clusterIds(String word){
@@ -47,5 +50,9 @@ public class IndexMaps  implements Serializable {
         if(brownFullClusters!=null && brownFullClusters.size()>0)
             return true;
         return false;
+    }
+
+    public HashMap<Integer, HashSet<Integer>> getTagDictionary() {
+        return tagDictionary;
     }
 }

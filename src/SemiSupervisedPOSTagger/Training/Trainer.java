@@ -11,6 +11,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -21,8 +23,8 @@ import java.util.zip.GZIPOutputStream;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 public class Trainer {
-    public static void train(final Options options, final int featSize) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile);
+    public static void train(final Options options, final int featSize,String tagDictionaryPath) throws Exception {
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile,tagDictionaryPath);
 
         // reading train and dev sentences to a vector
         ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps, options.delim);
@@ -30,7 +32,7 @@ public class Trainer {
         if (options.devPath != "")
             dev_sentences = FileManager.readSentences(options.devPath, maps, options.delim);
 
-        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize);
+        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize,maps.getTagDictionary());
         for (int iter = 1; iter <= options.trainingIter; iter++) {
             System.out.print("\niter: " + iter + "\n");
             int corr = 0;
@@ -48,7 +50,7 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + format.format(accuracy) + "\n");
 
-            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth);
+            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary());
             System.out.print("saving the model...");
             saveModel(maps, info, options.modelPath + ".iter_" + iter);
             System.out.print("done!\n");
@@ -124,7 +126,7 @@ public class Trainer {
                 int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
                 int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
-                for (int f = 0; f < featSize; f++) {
+                for (int f = 0; f < featSize-1; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 
@@ -136,6 +138,17 @@ public class Trainer {
                             classifier.changeWeight(gold, f, gfeat, +1);
                     }
                 }
+                
+               if(gold != predicted ){
+                   int gCond=classifier.dictCondition(sen.words[t],gold);
+                   if(gCond!=-1)
+                       classifier.changeWeight(gold, classifier.featureSize()-1, gCond, 1);
+                   
+                   int pCond=classifier.dictCondition(sen.words[t],predicted);
+                   if(pCond!=-1)
+                       classifier.changeWeight(predicted, classifier.featureSize()-1, pCond, -1);
+               }
+                
             }
         }
 
@@ -160,7 +173,7 @@ public class Trainer {
                 int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
                 int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
-                for (int f = featSize - 2; f < featSize; f++) {
+                for (int f = featSize - 3; f < featSize-1; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 

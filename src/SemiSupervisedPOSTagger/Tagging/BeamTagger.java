@@ -33,10 +33,10 @@ public class BeamTagger {
         if(!isDecode) {
             for (int v = 0; v < tagSize; v++) {
                 for (int u = 0; u < tagSize; u++) {
-                    bigramScore[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
+                    bigramScore[u][v] = perceptron.score(v, featSize - 3, u, isDecode);
                     for (int w = 0; w < tagSize; w++) {
                         int bigram = (w << 10) + u;
-                        trigramScore[w][u][v] = perceptron.score(v, featSize -1, bigram, isDecode);
+                        trigramScore[w][u][v] = perceptron.score(v, featSize -2, bigram, isDecode);
                     }
                 }
             }
@@ -49,6 +49,9 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
+                int cond=perceptron.dictCondition(sentence.words[position],t);
+                if(cond!=-1)
+                emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
         }
 
@@ -135,10 +138,10 @@ public class BeamTagger {
         if(!isDecode) {
             for (int v = 0; v < tagSize; v++) {
                 for (int u = 0; u < tagSize; u++) {
-                    bigramScore[u][v] = perceptron.score(v, featSize - 2, u, isDecode);
+                    bigramScore[u][v] = perceptron.score(v, featSize -3, u, isDecode);
                     for (int w = 0; w < tagSize; w++) {
                         int bigram = (w << 10) + u;
-                        trigramScore[w][u][v] = perceptron.score(v, featSize -1, bigram, isDecode);
+                        trigramScore[w][u][v] = perceptron.score(v, featSize -2, bigram, isDecode);
                     }
                 }
             }
@@ -151,6 +154,9 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
+                int cond=perceptron.dictCondition(sentence.words[position],t);
+                if(cond!=-1)
+                    emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
             }
         }
 
@@ -245,6 +251,9 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, true);
+                int cond=perceptron.dictCondition(sentence.words[position],t);
+                if(cond!=-1)
+                    emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,true) ;
             }
         }
 
@@ -348,10 +357,10 @@ public class BeamTagger {
 
         for (int v = 0; v < tagSize; v++) {
             for (int u = 0; u < tagSize; u++) {
-                bigramScore[u][v] = perceptron.score(v, featSize - 2, u, false);
+                bigramScore[u][v] = perceptron.score(v, featSize - 3, u, false);
                 for (int w = 0; w < tagSize; w++) {
                     int bigram = (w << 10) + u;
-                    trigramScore[w][u][v] = perceptron.score(v, featSize - 1, bigram, false);
+                    trigramScore[w][u][v] = perceptron.score(v, featSize - 2, bigram, false);
                 }
             }
         }
@@ -360,6 +369,9 @@ public class BeamTagger {
             int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, false);
+                int cond=perceptron.dictCondition(sentence.words[position],t);
+                if(cond!=-1)
+                    emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,false) ;
             }
         }
 

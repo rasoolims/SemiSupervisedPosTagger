@@ -5,6 +5,7 @@ import SemiSupervisedPOSTagger.Structures.Sentence;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ public class FileManager {
         return sentences;
     }
 
-    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile) throws Exception{
+    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile,String tagDictionaryPath) throws Exception{
         System.out.print("creating index maps...");
         HashMap<String, Integer> stringMap=new HashMap<String, Integer>();
         HashMap<String,Integer> clusterMap=new HashMap<String, Integer>();
@@ -127,6 +128,30 @@ public class FileManager {
         int tagSize=tags.size()+2;
         System.out.print("done!\n");
 
-        return  new IndexMaps(tagSize,stringMap,reversedMap,cluster4Map,cluster6Map,clusterMap);
+        HashMap<Integer,HashSet<Integer>> tagDictionary=new HashMap<Integer, HashSet<Integer>>();
+        if(tagDictionaryPath!=null && !tagDictionaryPath.equals("")) {
+            BufferedReader tagDictionaryReader = new BufferedReader(new FileReader(tagDictionaryPath));
+            while ((line = tagDictionaryReader.readLine()) != null) {
+                String[] spl = line.split("\t");
+                if (spl.length == 2) {
+                    String w = spl[0];
+                    String t = spl[1];
+
+                    if (!stringMap.containsKey(w))
+                        stringMap.put(w, index++);
+                    if (!stringMap.containsKey(t))
+                        stringMap.put(t, index++);
+
+                    int wi = stringMap.get(w);
+                    int ti = stringMap.get(t);
+
+                    if (!tagDictionary.containsKey(wi))
+                        tagDictionary.put(wi, new HashSet<Integer>());
+                    tagDictionary.get(wi).add(ti);
+                }
+            }
+        }
+        
+        return  new IndexMaps(tagSize,stringMap,reversedMap,cluster4Map,cluster6Map,clusterMap,tagDictionary);
     }
 }
