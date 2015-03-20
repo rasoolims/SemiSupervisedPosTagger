@@ -1,10 +1,10 @@
-package Training;
+package SemiSupervisedPOSTagger.Training;
 
-import IO.FileManager;
-import Learning.AveragedPerceptron;
-import Structures.*;
-import Tagging.BeamTagger;
-import Tagging.Tagger;
+import SemiSupervisedPOSTagger.IO.FileManager;
+import SemiSupervisedPOSTagger.Learning.AveragedPerceptron;
+import SemiSupervisedPOSTagger.Structures.*;
+import SemiSupervisedPOSTagger.Tagging.BeamTagger;
+import SemiSupervisedPOSTagger.Tagging.Tagger;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutput;

@@ -1,7 +1,7 @@
-package IO;
+package SemiSupervisedPOSTagger.IO;
 
-import Structures.IndexMaps;
-import Structures.Sentence;
+import SemiSupervisedPOSTagger.Structures.IndexMaps;
+import SemiSupervisedPOSTagger.Structures.Sentence;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,6 +1,8 @@
-import Structures.Options;
-import Tagging.Tagger;
-import Training.Trainer;
+package SemiSupervisedPOSTagger;
+
+import SemiSupervisedPOSTagger.Structures.Options;
+import SemiSupervisedPOSTagger.Tagging.Tagger;
+import SemiSupervisedPOSTagger.Training.Trainer;
 
 /**
  * Created by Mohammad Sadegh Rasooli.

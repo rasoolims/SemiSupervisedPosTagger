@@ -1,4 +1,4 @@
-package Structures;
+package SemiSupervisedPOSTagger.Structures;
 
 /**
  * Created by Mohammad Sadegh Rasooli.

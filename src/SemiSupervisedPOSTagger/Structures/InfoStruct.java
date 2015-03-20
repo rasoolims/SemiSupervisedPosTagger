@@ -1,6 +1,6 @@
-package Structures;
+package SemiSupervisedPOSTagger.Structures;
 
-import Learning.AveragedPerceptron;
+import SemiSupervisedPOSTagger.Learning.AveragedPerceptron;
 
 import java.io.Serializable;
 import java.util.HashMap;

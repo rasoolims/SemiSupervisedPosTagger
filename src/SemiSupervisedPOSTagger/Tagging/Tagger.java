@@ -1,9 +1,10 @@
-package Tagging;
+package SemiSupervisedPOSTagger.Tagging;
 
-import Learning.AveragedPerceptron;
-import Structures.IndexMaps;
-import Structures.InfoStruct;
-import Structures.Sentence;
+import SemiSupervisedPOSTagger.Learning.AveragedPerceptron;
+import SemiSupervisedPOSTagger.Structures.IndexMaps;
+import SemiSupervisedPOSTagger.Structures.InfoStruct;
+import SemiSupervisedPOSTagger.Structures.Pair;
+import SemiSupervisedPOSTagger.Structures.Sentence;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -79,6 +80,11 @@ public class Tagger {
                 BeamTagger.thirdOrder(sentence, perceptron, true,beamSize,usePartialInfo,this):Viterbi.thirdOrder(sentence, perceptron, true,this);
     }
 
+    public  Pair<int[],Float> tagWithScore(final Sentence sentence,  final boolean usePartialInfo) {
+        return useBeamSearch ?
+                BeamTagger.thirdOrderWithScore(sentence, perceptron, true, beamSize, usePartialInfo, this):Viterbi.thirdOrderWithScore(sentence, perceptron, true,this);
+    }
+
     public void tag(final String inputPath, final String outputPath,final String delim)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
@@ -114,6 +120,19 @@ public class Tagger {
         writer.close();
     }
 
+    public ArrayList<Pair<String[],Float>> getPossibleTagReplacements(Sentence sentence){
+      ArrayList<Pair<int[],Float>> repls=  BeamTagger.getPossibleTagsByOneReplacement(sentence, perceptron, beamSize, this);
+        ArrayList<Pair<String[],Float>> replacements=new ArrayList<Pair<String[],Float>>();
+        for(Pair<int[],Float> rpl:repls) {
+            String[] tags=new String[rpl.first.length];
+            for(int i=0;i<rpl.first.length;i++){
+                tags[i]=maps.reversedMap[rpl.first[i]];
+            }
+            replacements.add(new Pair<String[], Float>(tags,rpl.second));
+        }
+        return replacements;
+    }
+    
     public  void partialTag( final String inputPath, final String outputPath,final String delim)throws Exception{
         BufferedReader reader=new BufferedReader(new FileReader(inputPath));
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
@@ -147,4 +166,8 @@ public class Tagger {
         writer.close();
     }
 
+
+    public IndexMaps getMaps() {
+        return maps;
+    }
 }

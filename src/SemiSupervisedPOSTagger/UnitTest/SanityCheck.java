@@ -1,11 +1,9 @@
-package UnitTest;
+package SemiSupervisedPOSTagger.UnitTest;
 
-import IO.FileManager;
-import Structures.IndexMaps;
-import Structures.Sentence;
+import SemiSupervisedPOSTagger.IO.FileManager;
+import SemiSupervisedPOSTagger.Structures.IndexMaps;
+import SemiSupervisedPOSTagger.Structures.Sentence;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 
 /**

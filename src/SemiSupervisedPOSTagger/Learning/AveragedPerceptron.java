@@ -4,10 +4,10 @@
  * Modified by Mohammad Sadegh Rasooli
  */
 
-package Learning;
+package SemiSupervisedPOSTagger.Learning;
 
-import Structures.InfoStruct;
-import Structures.SpecialWords;
+import SemiSupervisedPOSTagger.Structures.InfoStruct;
+import SemiSupervisedPOSTagger.Structures.SpecialWords;
 
 import java.util.HashMap;
 
@@ -20,7 +20,7 @@ public class AveragedPerceptron {
      * <p/>
      * The averaging update is also optimized by using the trick introduced in Hal Daume's dissertation.
      * For more information see the second chapter of his thesis:
-     * Harold Charles Daume' III. "Practical Structured Learning Techniques for Natural Language Processing", PhD thesis, ISI USC, 2006.
+     * Harold Charles Daume' III. "Practical Structured SemiSupervisedPOSTagger.Learning Techniques for Natural Language Processing", PhD thesis, ISI USC, 2006.
      * http://www.umiacs.umd.edu/~hal/docs/daume06thesis.pdf
      */
 

@@ -1,4 +1,4 @@
-package Structures;
+package SemiSupervisedPOSTagger.Structures;
 
 import java.util.ArrayList;
 
@@ -164,6 +164,71 @@ public class Sentence {
             this.tags[i] = SpecialWords.unknown.value;
         }
     }
+
+    public Sentence(String[] words,IndexMaps maps){
+        this.words=new int[words.length];
+        this.wordStrs = new String[words.length];
+        this.tags=new int[words.length];
+        prefixes=new int[words.length][4];
+        suffixes=new int[words.length][4];
+        containsNumber=new boolean[words.length];
+        containsHyphen=new boolean[words.length];
+        containsUpperCaseLetter=new boolean[words.length];
+        brownClusters=new int[words.length][3];
+
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            this.wordStrs[i] = word;
+            String lowerWord = word.toLowerCase();
+            if (maps.stringMap.containsKey(word))
+                this.words[i] = maps.stringMap.get(word);
+            else
+                this.words[i] = SpecialWords.unknown.value;
+
+            for (int p = 0; p < Math.min(4, word.length()); p++) {
+                String prefix = lowerWord.substring(0, p + 1);
+                String suffix = lowerWord.substring(word.length() - p - 1);
+
+                if (maps.stringMap.containsKey(prefix))
+                    prefixes[i][p] = maps.stringMap.get(prefix);
+                else
+                    prefixes[i][p] = SpecialWords.unknown.value;
+
+                if (maps.stringMap.containsKey(suffix))
+                    suffixes[i][p] = maps.stringMap.get(suffix);
+                else
+                    suffixes[i][p] = SpecialWords.unknown.value;
+            }
+            if (word.length() < 4) {
+                for (int p = word.length(); p < 4; p++) {
+                    prefixes[i][p] = SpecialWords.unknown.value;
+                    suffixes[i][p] = SpecialWords.unknown.value;
+                }
+            }
+            brownClusters[i]= maps.clusterIds(word);
+
+            boolean hasUpperCase = false;
+            boolean hasHyphen = false;
+            boolean hasNumber = false;
+            for (char c : word.toCharArray()) {
+                if (!hasUpperCase && Character.isUpperCase(c))
+                    hasUpperCase = true;
+                if (!hasHyphen && c == '-')
+                    hasHyphen = true;
+                if (!hasNumber && Character.isDigit(c))
+                    hasNumber = true;
+                if (hasHyphen && hasNumber && hasUpperCase)
+                    break;
+            }
+
+            containsHyphen[i] = hasHyphen;
+            containsNumber[i] = hasNumber;
+            containsUpperCaseLetter[i] = hasUpperCase;
+
+            this.tags[i] = SpecialWords.unknown.value;
+        }
+    }
+
 
     public int[] getEmissionFeatures(final int position, final int featSize){
         int[] features=new int[featSize];
