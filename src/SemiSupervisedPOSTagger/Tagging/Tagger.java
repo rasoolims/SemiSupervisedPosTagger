@@ -132,8 +132,10 @@ public class Tagger {
         System.out.print(ln+"\n");
         writer.flush();
         writer.close();
-        scoreWriter.flush();
-        scoreWriter.close();
+        if(putScore) {
+            scoreWriter.flush();
+            scoreWriter.close();
+        }
     }
 
     public ArrayList<Pair<String[],Float>> getPossibleTagReplacements(Sentence sentence){
@@ -195,8 +197,10 @@ public class Tagger {
         writer.flush();
         writer.close();
 
-        scoreWriter.flush();
-        scoreWriter.close();
+        if(putScore) {
+            scoreWriter.flush();
+            scoreWriter.close();
+        }
     }
 
 
