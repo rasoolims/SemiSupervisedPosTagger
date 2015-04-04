@@ -25,6 +25,9 @@ public class AveragedPerceptron {
      * http://www.umiacs.umd.edu/~hal/docs/daume06thesis.pdf
      */
 
+    
+    //todo make semi-sparse vectors
+    
     /**
      * For the weights for all features
      */
@@ -138,6 +141,8 @@ public class AveragedPerceptron {
 
     public float score(final int tagIndex, final int featIndex, final int feat, final boolean isDecode) {
       float score=0f;
+        if (feat == SpecialWords.unknown.value)
+            return score;
        if(featIndex==featureSize()-1){
             if(isDecode){
                  if(avgPenalizerWeight.containsKey(feat))
@@ -147,8 +152,7 @@ public class AveragedPerceptron {
                     score=   penalizerWeight.get(feat);
             }
        } // else {
-           if (feat == SpecialWords.unknown.value)
-               return score;
+
            HashMap<Integer, Float> map = isDecode ? averagedWeights[tagIndex][featIndex] : featureWeights[tagIndex][featIndex];
 
            if (map.containsKey(feat))

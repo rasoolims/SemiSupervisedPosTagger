@@ -22,7 +22,7 @@ public class Main {
       //  options.modelPath="/tmp/model";
         
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, 37,options.tagDictionaryPath);
+            Trainer.train(options, 30,options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);
             tagger.tag( options.inputPath, options.outputPath, options.delim,options.scoreFile);

@@ -318,8 +318,8 @@ public class Sentence {
 
         features[index++]=prevCluster;
         features[index++]=prev2Cluster;
-        features[index++]=nextCluster;
-        //features[index++]=next2Cluster;
+         features[index++]=nextCluster;
+       // features[index++]=next2Cluster;
         
         for(int i=1;i<brownSize;i++) {
             if (position >= 0 && position < length) {
@@ -329,7 +329,7 @@ public class Sentence {
             } else {
                 //  features[index++]=SpecialWords.unknown.value;
                 features[index++] = SpecialWords.unknown.value;
-                features[index++] = SpecialWords.unknown.value;
+              //  features[index++] = SpecialWords.unknown.value;
             }
         }
 
