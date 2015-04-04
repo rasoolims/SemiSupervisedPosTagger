@@ -194,7 +194,7 @@ public class AveragedPerceptron {
     }
     
     public int dictCondition(int word, int tag){
-        int cond=-1;
+        int cond=0;
         if(tagDictionary.containsKey(word)){
             cond=0;
             if(tagDictionary.get(word).contains(tag))

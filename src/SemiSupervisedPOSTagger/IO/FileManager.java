@@ -32,12 +32,13 @@ public class FileManager {
         return sentences;
     }
 
-    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile,String tagDictionaryPath) throws Exception{
+    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile,String tagDictionaryPath, int brownSize) throws Exception{
         System.out.print("creating index maps...");
         HashMap<String, Integer> stringMap=new HashMap<String, Integer>();
         HashMap<String,Integer> clusterMap=new HashMap<String, Integer>();
-        HashMap<Integer,Integer> cluster4Map=new HashMap<Integer, Integer>();
-        HashMap<Integer,Integer> cluster6Map=new HashMap<Integer, Integer>();
+        HashMap<Integer,Integer>[] clusterNMap=new HashMap[brownSize];
+        for(int i=0;i<brownSize;i++)
+            clusterNMap[i]=new HashMap<Integer, Integer>();
 
         BufferedReader reader=new BufferedReader(new FileReader(filePath));
 
@@ -82,8 +83,6 @@ public class FileManager {
                 if (spl.length > 2) {
                     String cluster = spl[0];
                     String word=spl[1];
-                    String prefix4=cluster.substring(0,Math.min(4,cluster.length()));
-                    String prefix6=cluster.substring(0,Math.min(6,cluster.length()));
                     int clusterNum=index;
 
                     if (!stringMap.containsKey(cluster)) {
@@ -94,22 +93,17 @@ public class FileManager {
                         clusterMap.put(word,clusterNum);
                     }
 
-                    int pref4Id=index;
-                    if (!stringMap.containsKey(prefix4)) {
-                        stringMap.put(prefix4, index++);
-                    }  else{
-                        pref4Id=stringMap.get(prefix4);
+                    for(int i=0;i<brownSize;i++) {
+                        int prefId = index;
+                        String prefix=cluster.substring(0,Math.min(i+1,cluster.length()));
+                        if (!stringMap.containsKey(prefix)) {
+                            stringMap.put(prefix, index++);
+                        } else {
+                            prefId = stringMap.get(prefix);
+                        }
+                        clusterNMap[i].put(clusterNum,prefId);
                     }
 
-                    int pref6Id=index;
-                    if (!stringMap.containsKey(prefix6)) {
-                        stringMap.put(prefix6, index++);
-                    }else{
-                        pref6Id=stringMap.get(prefix6);
-                    }
-
-                    cluster4Map.put(clusterNum,pref4Id);
-                    cluster6Map.put(clusterNum,pref6Id);
                 }
             }
         }
@@ -154,6 +148,6 @@ public class FileManager {
             }
         }
         
-        return  new IndexMaps(tagSize,stringMap,reversedMap,cluster4Map,cluster6Map,clusterMap,tagDictionary);
+        return  new IndexMaps(tagSize,stringMap,reversedMap,clusterNMap,clusterMap,tagDictionary);
     }
 }

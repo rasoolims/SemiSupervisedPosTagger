@@ -24,7 +24,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Trainer {
     public static void train(final Options options, final int featSize,String tagDictionaryPath) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile,tagDictionaryPath);
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile,tagDictionaryPath, Sentence.brownSize);
         int unknownIndex=-1;
        // if(maps.stringMap.containsKey("***"))
          //   unknownIndex=maps.stringMap.get("***");

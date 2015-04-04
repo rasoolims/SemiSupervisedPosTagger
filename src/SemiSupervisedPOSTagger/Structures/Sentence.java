@@ -23,6 +23,8 @@ public class Sentence {
     public boolean[] containsNumber;
     public boolean[] containsHyphen;
     public boolean[] containsUpperCaseLetter;
+    
+    public final static int brownSize=10;
 
     public Sentence (final String line,final IndexMaps maps,final String delim){
         String[] split=line.trim().split(" ");
@@ -39,7 +41,7 @@ public class Sentence {
         this.wordStrs=new String[words.size()];
         prefixes=new int[words.size()][4];
         suffixes=new int[words.size()][4];
-        brownClusters=new int[words.size()][3];
+        brownClusters=new int[words.size()][brownSize];
         containsNumber=new boolean[words.size()];
         containsHyphen=new boolean[words.size()];
         containsUpperCaseLetter=new boolean[words.size()];
@@ -118,7 +120,7 @@ public class Sentence {
         containsNumber=new boolean[words.size()];
         containsHyphen=new boolean[words.size()];
         containsUpperCaseLetter=new boolean[words.size()];
-        brownClusters=new int[words.size()][3];
+        brownClusters=new int[words.size()][brownSize];
 
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
@@ -188,7 +190,7 @@ public class Sentence {
         containsNumber=new boolean[words.length];
         containsHyphen=new boolean[words.length];
         containsUpperCaseLetter=new boolean[words.length];
-        brownClusters=new int[words.length][3];
+        brownClusters=new int[words.length][brownSize];
 
         for (int i = 0; i < words.length; i++) {
             String word = words[i];
@@ -287,6 +289,7 @@ public class Sentence {
         int next2Cluster=SpecialWords.unknown.value;
         
         int prevPosition=position-1;
+        
         if(prevPosition>=0){
             prevWord=words[prevPosition];
             prevCluster=brownClusters[prevPosition][0];
@@ -308,26 +311,26 @@ public class Sentence {
                 next2Cluster=  brownClusters[next2Position][0];
             }
         }
-
         features[index++]=prevWord;
         features[index++]=prev2Word;
         features[index++]=nextWord;
         features[index++]=next2Word;
 
         features[index++]=prevCluster;
-        //features[index++]=prev2Cluster;
+        features[index++]=prev2Cluster;
         features[index++]=nextCluster;
         //features[index++]=next2Cluster;
         
-        
-        if(position>=0 && position<length) {
-          //  features[index++] = brownClusters[position][0];
-            features[index++] = brownClusters[position][1];
-            features[index++] = brownClusters[position][2];
-        }else{
-          //  features[index++]=SpecialWords.unknown.value;
-            features[index++]=SpecialWords.unknown.value;
-            features[index++]=SpecialWords.unknown.value;
+        for(int i=1;i<brownSize;i++) {
+            if (position >= 0 && position < length) {
+                //  features[index++] = brownClusters[position][0];
+                features[index++] = brownClusters[position][i];
+            //    features[index++] = brownClusters[position][2];
+            } else {
+                //  features[index++]=SpecialWords.unknown.value;
+                features[index++] = SpecialWords.unknown.value;
+                features[index++] = SpecialWords.unknown.value;
+            }
         }
 
         return  features;
