@@ -24,7 +24,7 @@ public class Sentence {
     public boolean[] containsHyphen;
     public boolean[] containsUpperCaseLetter;
     
-    public final static int brownSize=10;
+    public final static int brownSize=12;
 
     public Sentence (final String line,final IndexMaps maps,final String delim){
         String[] split=line.trim().split(" ");
@@ -317,8 +317,9 @@ public class Sentence {
         features[index++]=next2Word;
 
         features[index++]=prevCluster;
-        features[index++]=prev2Cluster;
-         features[index++]=nextCluster;
+        features[index++]=(prev2Cluster);
+
+        //  features[index++]=nextCluster;
        // features[index++]=next2Cluster;
         
         for(int i=1;i<brownSize;i++) {

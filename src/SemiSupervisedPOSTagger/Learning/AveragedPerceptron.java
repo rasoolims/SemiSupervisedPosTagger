@@ -129,8 +129,8 @@ public class AveragedPerceptron {
         }
 
         for (int i = 0; i < features.length; i++) {
-            if(features[i]== SpecialWords.unknown.value)
-                continue;
+       //     if(features[i]== SpecialWords.unknown.value)
+         //       continue;
             Float value = (weights[i]).get(features[i]);
 
             if (value != null)
@@ -141,8 +141,8 @@ public class AveragedPerceptron {
 
     public float score(final int tagIndex, final int featIndex, final int feat, final boolean isDecode) {
       float score=0f;
-        if (feat == SpecialWords.unknown.value)
-            return score;
+        //if (feat == SpecialWords.unknown.value)
+       //     return score;
        if(featIndex==featureSize()-1){
             if(isDecode){
                  if(avgPenalizerWeight.containsKey(feat))
