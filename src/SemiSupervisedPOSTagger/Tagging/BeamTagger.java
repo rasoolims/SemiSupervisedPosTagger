@@ -343,10 +343,17 @@ public class BeamTagger {
     }
     
     
-    public static TaggingState thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, int beamWidth, UpdateMode updateMode) {
+    public static TaggingState thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, int beamWidth, UpdateMode updateMode, int unknownIndex) {
         int len = sentence.words.length + 1;
         int tagSize = perceptron.tagSize();
         int featSize = perceptron.featureSize();
+        
+        boolean isPartial=false;
+        for(int tag:sentence.tags)
+        if(tag==unknownIndex){
+            isPartial=true;
+            break;
+        }
 
         float maxViolation = Float.NEGATIVE_INFINITY;
         TaggingState maxViolState = new TaggingState(sentence.words.length);
@@ -404,16 +411,20 @@ public class BeamTagger {
                         elements.pollFirst();
                 }
             }
-
-            int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
-            int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
-            float es = emission_score[goldState.currentPosition][sentence.tags[goldState.currentPosition]];
-            float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
-            float ts = trigramScore[prev2Tag][prevTag][sentence.tags[goldState.currentPosition]];
-            float score = es + bs + ts + goldState.score;
-            goldState.score = score;
-            goldState.tags[goldState.currentPosition] = goldState.tags[goldState.currentPosition];
-            goldState.currentPosition++;
+            
+                if (sentence.tags[goldState.currentPosition] != unknownIndex) {
+                    int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
+                    int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
+                    if (prevTag != unknownIndex && prev2Tag != unknownIndex) {
+                        float es = emission_score[goldState.currentPosition][sentence.tags[goldState.currentPosition]];
+                        float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
+                        float ts = trigramScore[prev2Tag][prevTag][sentence.tags[goldState.currentPosition]];
+                        float score = es + bs + ts + goldState.score;
+                        goldState.score = score;
+                    }
+                }
+                goldState.tags[goldState.currentPosition] = sentence.tags[goldState.currentPosition];
+                goldState.currentPosition++;
 
             ArrayList<TaggingState> newBeam = new ArrayList<TaggingState>();
 
@@ -426,7 +437,7 @@ public class BeamTagger {
                 if (updateMode.value != updateMode.standard.value && !oracleInBeam) {
                     boolean same = true;
                     for (int j = 0; j <= state.currentPosition; j++) {
-                        if (sentence.tags[i] != state.tags[i]) {
+                        if (sentence.tags[i] != state.tags[i] && sentence.tags[i]!=unknownIndex) {
                             same = false;
                             break;
                         }
@@ -469,10 +480,12 @@ public class BeamTagger {
 
         int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
         int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
-        float bs = bigramScore[prevTag][1];
-        float ts = trigramScore[prev2Tag][prevTag][1];
-        float score = bs + ts + goldState.score;
-        goldState.score = score;
+       if(prev2Tag!=unknownIndex && prevTag!=unknownIndex) {
+           float bs = bigramScore[prevTag][1];
+           float ts = trigramScore[prev2Tag][prevTag][1];
+           float score = bs + ts + goldState.score;
+           goldState.score = score;
+       }
 
 
         int beamNum = elements.last().beamNum;
@@ -482,7 +495,7 @@ public class BeamTagger {
             maxViolState = lastState;
         }
 
-        if (updateMode.value != updateMode.maxViolation.value)
+        if (updateMode.value != updateMode.maxViolation.value && isPartial)
             return lastState;
 
         return maxViolState;

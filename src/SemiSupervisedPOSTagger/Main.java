@@ -17,6 +17,10 @@ public class Main {
 
         System.out.println(options);
 
+        options.train=true;
+        options.trainPath="/tmp/en2de.tag.projection2.partial0.8";
+        options.modelPath="/tmp/model";
+        
         if (options.train && options.trainPath != "" && options.modelPath != "")
             Trainer.train(options, 23,options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
