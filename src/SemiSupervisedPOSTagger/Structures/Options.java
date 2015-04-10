@@ -77,11 +77,11 @@ public class Options {
                 devPath = args[i + 1];
             if(args[i].equals("-delim") && i<args.length-1)
                 delim = args[i + 1];
-            if (args[i].equals("--update:max_viol") && i < args.length - 1)
+            if (args[i].equals("-update:max_viol"))
                 updateMode = UpdateMode.maxViolation;
-            if (args[i].equals("---update:early") && i < args.length - 1)
+            if (args[i].equals("-update:early"))
                 updateMode = UpdateMode.early;
-            if (args[i].equals("---update:standard") && i < args.length - 1)
+            if (args[i].equals("-update:standard"))
                 updateMode = UpdateMode.standard;
         }
     }
