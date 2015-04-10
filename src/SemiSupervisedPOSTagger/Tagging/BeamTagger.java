@@ -495,9 +495,186 @@ public class BeamTagger {
             maxViolState = lastState;
         }
 
-        if (updateMode.value != updateMode.maxViolation.value && isPartial)
+        if (updateMode.value != updateMode.maxViolation.value || isPartial)
             return lastState;
 
         return maxViolState;
     }
+
+    public static ArrayList<TaggingState> thirdOrderNBest(final Sentence sentence, final AveragedPerceptron perceptron, int beamWidth, UpdateMode updateMode, int unknownIndex, int n) {
+        int len = sentence.words.length + 1;
+        int tagSize = perceptron.tagSize();
+        int featSize = perceptron.featureSize();
+
+        boolean isPartial=false;
+        for(int tag:sentence.tags)
+            if(tag==unknownIndex){
+                isPartial=true;
+                break;
+            }
+
+
+        ArrayList<TaggingState> maxStates=new ArrayList<TaggingState>(n);
+        
+        
+        float maxViolation = Float.NEGATIVE_INFINITY;
+        TaggingState goldState = new TaggingState(sentence.words.length);
+
+
+        // pai score values
+        float emission_score[][] = new float[len - 1][tagSize];
+        float bigramScore[][] = new float[tagSize][tagSize];
+        float trigramScore[][][] = new float[tagSize][tagSize][tagSize];
+
+        for (int v = 0; v < tagSize; v++) {
+            for (int u = 0; u < tagSize; u++) {
+                bigramScore[u][v] = perceptron.score(v, featSize - 3, u, false);
+                for (int w = 0; w < tagSize; w++) {
+                    int bigram = (w << 10) + u;
+                    trigramScore[w][u][v] = perceptron.score(v, featSize - 2, bigram, false);
+                }
+            }
+        }
+
+        for (int position = 0; position < sentence.words.length; position++) {
+            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            for (int t = 2; t < tagSize; t++) {
+                emission_score[position][t] = perceptron.score(emissionFeatures, t, false);
+                //   int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                if(cond!=-1)
+                    emission_score[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,false) ;
+            }
+        }
+
+        ArrayList<TaggingState> beam = new ArrayList<TaggingState>();
+        TaggingState initialState = new TaggingState(sentence.words.length);
+        beam.add(initialState);
+
+        for (int i = 0; i < sentence.words.length; i++) {
+            TreeSet<BeamElement> elements = new TreeSet<BeamElement>();
+
+
+            for (int b = 0; b < beam.size(); b++) {
+                TaggingState state = beam.get(b);
+                int currentPosition = state.currentPosition;
+                int prevTag = currentPosition > 0 ? state.tags[currentPosition - 1] : 0;
+                int prev2Tag = currentPosition > 1 ? state.tags[currentPosition - 2] : 0;
+
+                for (int tagDecision = 2; tagDecision < tagSize; tagDecision++) {
+                    float es = emission_score[currentPosition][tagDecision];
+                    float bs = bigramScore[prevTag][tagDecision];
+                    float ts = trigramScore[prev2Tag][prevTag][tagDecision];
+                    float score = es + bs + ts + state.score;
+                    BeamElement element = new BeamElement(tagDecision, score, b);
+                    elements.add(element);
+                    if (elements.size() > beamWidth)
+                        elements.pollFirst();
+                }
+            }
+
+            if (sentence.tags[goldState.currentPosition] != unknownIndex) {
+                int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
+                int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
+                if (prevTag != unknownIndex && prev2Tag != unknownIndex) {
+                    float es = emission_score[goldState.currentPosition][sentence.tags[goldState.currentPosition]];
+                    float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
+                    float ts = trigramScore[prev2Tag][prevTag][sentence.tags[goldState.currentPosition]];
+                    float score = es + bs + ts + goldState.score;
+                    goldState.score = score;
+                }
+            }
+            goldState.tags[goldState.currentPosition] = sentence.tags[goldState.currentPosition];
+            goldState.currentPosition++;
+
+            ArrayList<TaggingState> newBeam = new ArrayList<TaggingState>();
+
+            boolean oracleInBeam = false;
+            for (BeamElement element : elements) {
+                TaggingState state = beam.get(element.beamNum).clone();
+                state.tags[state.currentPosition++] = element.tagDecision;
+                state.score = element.score;
+                newBeam.add(state);
+                if (updateMode.value != updateMode.standard.value && !oracleInBeam) {
+                    boolean same = true;
+                    for (int j = 0; j <= state.currentPosition; j++) {
+                        if (sentence.tags[i] != state.tags[i] && sentence.tags[i]!=unknownIndex) {
+                            same = false;
+                            break;
+                        }
+                    }
+                    if (same)
+                        oracleInBeam = true;
+                }
+            }
+
+            if (updateMode.value != updateMode.standard.value && !oracleInBeam) {
+                float viol = elements.last().score - goldState.score;
+                if (viol > maxViolation) {
+                    maxViolation = viol;
+                    maxStates=new ArrayList<TaggingState>(n);
+
+                    for(int j=1;j<=n;j++){
+                        maxStates.add(newBeam.get(newBeam.size() - j));
+                    }
+                    if (updateMode.value == updateMode.early.value) {
+                        return maxStates;
+                    }
+                }
+            }
+
+            beam = newBeam;
+        }
+
+
+        TreeSet<BeamElement> elements = new TreeSet<BeamElement>();
+        for (int b = 0; b < beam.size(); b++) {
+            TaggingState state = beam.get(b);
+            int currentPosition = state.currentPosition;
+            int prevTag = currentPosition > 0 ? state.tags[currentPosition - 1] : 0;
+            int prev2Tag = currentPosition > 1 ? state.tags[currentPosition - 2] : 0;
+            int tagDecision = SpecialWords.stop.value;
+            float bs = bigramScore[prevTag][tagDecision];
+            float ts = trigramScore[prev2Tag][prevTag][tagDecision];
+            float score = bs + ts + state.score;
+            BeamElement element = new BeamElement(tagDecision, score, b);
+            elements.add(element);
+            if (elements.size() > beamWidth)
+                elements.pollFirst();
+        }
+
+        int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
+        int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
+        if(prev2Tag!=unknownIndex && prevTag!=unknownIndex) {
+            float bs = bigramScore[prevTag][1];
+            float ts = trigramScore[prev2Tag][prevTag][1];
+            float score = bs + ts + goldState.score;
+            goldState.score = score;
+        }
+
+
+        int beamNum = elements.last().beamNum;
+        TaggingState lastState = beam.get(beamNum);
+        float viol = lastState.score - goldState.score;
+        if (viol > maxViolation) {
+            maxStates=new ArrayList<TaggingState>(n);
+
+            for(int j=1;j<=n;j++){
+                maxStates.add(beam.get(beam.size() - j));
+            }
+        }
+
+        if (updateMode.value != updateMode.maxViolation.value || isPartial) {
+            maxStates=new ArrayList<TaggingState>(n);
+
+            for(int i=1;i<=n;i++){
+                maxStates.add(beam.get(beam.size() - i));
+            }
+              return maxStates;
+        }
+
+        return maxStates;
+    }
+
+
 }

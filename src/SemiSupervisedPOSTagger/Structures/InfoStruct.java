@@ -24,13 +24,17 @@ public class InfoStruct implements Serializable {
     public int beamSize;
     public boolean useBeamSearch;
 
-    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize,HashMap<Integer,HashSet<Integer>> tagDictionary,HashMap<Integer,Float> penalizerWeight) {
-        averagedWeights = perceptron.getAveragedWeights();
+    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize,HashMap<Integer,HashSet<Integer>> tagDictionary,HashMap<Integer,Float> penalizerWeight, boolean doAveraging) {
+        if (doAveraging)
+            averagedWeights = perceptron.getAveragedWeights();
+        else
+            averagedWeights = perceptron.featureWeights;
+
         tagSize = perceptron.tagSize();
         featSize = perceptron.featureSize();
-        this.beamSize=beamSize;
-        this.useBeamSearch=useBeamSearch;
-        this.tagDictionary=tagDictionary;
-        this.penalizerWeight=penalizerWeight;
+        this.beamSize = beamSize;
+        this.useBeamSearch = useBeamSearch;
+        this.tagDictionary = tagDictionary;
+        this.penalizerWeight = penalizerWeight;
     }
 }

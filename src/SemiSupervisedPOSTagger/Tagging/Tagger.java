@@ -80,6 +80,11 @@ public class Tagger {
                 BeamTagger.thirdOrder(sentence, perceptron, true,beamSize,usePartialInfo,this):Viterbi.thirdOrder(sentence, perceptron, true,this);
     }
 
+    public  int[] tag(final Sentence sentence,  final boolean usePartialInfo, final boolean isDecode) {
+        return useBeamSearch ?
+                BeamTagger.thirdOrder(sentence, perceptron, isDecode,beamSize,usePartialInfo,this):Viterbi.thirdOrder(sentence, perceptron, isDecode,this);
+    }
+
     public  Pair<int[],Float> tagWithScore(final Sentence sentence,  final boolean usePartialInfo) {
         return useBeamSearch ?
                 BeamTagger.thirdOrderWithScore(sentence, perceptron, true, beamSize, usePartialInfo, this):Viterbi.thirdOrderWithScore(sentence, perceptron, true,this);

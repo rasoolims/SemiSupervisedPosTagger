@@ -25,6 +25,7 @@ public class Options {
     public String scoreFile;
     public UpdateMode updateMode;
     public String tagDictionaryPath;
+    public double C;
 
     public Options() {
         this.useBeamSearch = true;
@@ -42,6 +43,7 @@ public class Options {
         outputPath="";
         tagDictionaryPath="";
         updateMode = UpdateMode.maxViolation;
+        C=5000;
     }
 
     public Options(String[] args){
@@ -65,6 +67,11 @@ public class Options {
                 trainPath = args[i + 1];
                 inputPath = args[i + 1];
             }
+            if(args[i].equals("-c") && i<args.length-1)
+                if(args[i+1].equals("inf"))
+                    C=Double.POSITIVE_INFINITY;
+            else
+                C=Double.parseDouble(args[i + 1]);
             if(args[i].equals("-output") && i<args.length-1)
                 outputPath = args[i + 1];
             if(args[i].equals("-cluster") && i<args.length-1)
@@ -93,6 +100,7 @@ public class Options {
             output.append("train iterations: " + trainingIter + "\n");
             output.append("train file: " + trainPath + "\n");
             output.append("model file: " + modelPath + "\n");
+            output.append("C: " + C + "\n");
             output.append("dev file: " + devPath + "\n");
             output.append("cluster file: " + clusterFile + "\n");
             output.append("tag dict file: " + tagDictionaryPath + "\n");
@@ -119,6 +127,7 @@ public class Options {
         output.append("     -dev [dev-file]  dev file address\n");
         output.append("     -cluster [cluster-file]  brown cluster file address\n");
         output.append("     -dict [tag-dict-file]  tag dictionary file address\n");
+        output.append("     -c [c-value]  default:5000; put inf for infinity and negative value for original perceptron update\n");
         output.append("     -viterbi   if you want to use Viterbi decoding (default: beam decoding)\n");
         output.append("     -update:[mode]  for beam training; three #modes: max_viol, early, standard (default: max_viol)\n");
         output.append("     -delim [delim]   put delimiter string in [delim] for word tag separator (default _) e.g. -delim / \n");

@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -46,7 +47,7 @@ public class Trainer {
                 Sentence sen = train_sentences.get(s);
                 if ((s + 1) % 1000 == 0)
                     System.out.print((s + 1) + " ");
-                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, featSize, options.updateMode,unknownIndex);
+                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, featSize, options.updateMode,unknownIndex,options.C);
                 all += sen.words.length;
                 classifier.incrementIteration();
             }
@@ -54,20 +55,28 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + format.format(accuracy) + "\n");
 
-            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight());
+            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight(),true);
+            InfoStruct info_no_avg = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight(),false);
             System.out.print("saving the model...");
             saveModel(maps, info, options.modelPath + ".iter_" + iter);
+            saveModel(maps, info_no_avg, options.modelPath + ".no_avg.iter_" + iter);
             System.out.print("done!\n");
 
-            if (dev_sentences.size() > 0)
-                devIter(dev_sentences,options.modelPath + ".iter_" + iter);
+            if (dev_sentences.size() > 0) {
+                devIter(dev_sentences, options.modelPath + ".iter_" + iter);
+                devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
+            }
         }
     }
 
-    private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex) {
+    private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex, final   double C) {
         int corr = 0;
         if (useBeamSearch || updateMode.value == updateMode.standard.value) {
-            TaggingState predictedState = BeamTagger.thirdOrder(sen, classifier, beamSize, updateMode,unknownIndex);
+          //  TaggingState predictedState = BeamTagger.thirdOrder(sen, classifier, beamSize, updateMode,unknownIndex);
+           //todo
+            ArrayList<TaggingState> bestStates= BeamTagger.thirdOrderNBest(sen, classifier, beamSize, updateMode, unknownIndex,2);
+
+            TaggingState predictedState=bestStates.get(0);
             int[] predictedTags = predictedState.tags;
             int currentPosition = predictedState.currentPosition;
             assert (predictedTags.length == sen.tags.length);
@@ -85,16 +94,18 @@ public class Trainer {
             // updating weights
             if (!same) {
                 updateWeights(sen, classifier, predictedTags, featSize, currentPosition, unknownIndex);
+            }  else if(predictedState.score-bestStates.get(1).score<=C){
+                updateWeights(sen, classifier, bestStates.get(1).tags, featSize, currentPosition, unknownIndex);
             }
         } else {
-            int[] predictedTags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize,false);
+            int[] predictedTags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize, false);
             assert (predictedTags.length == sen.tags.length);
 
             boolean same = true;
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
                 int gold = sen.tags[t];
-                if (predicted != gold && gold!=unknownIndex) {
+                if (predicted != gold && gold != unknownIndex) {
                     same = false;
                 } else
                     corr++;
@@ -102,7 +113,7 @@ public class Trainer {
 
             // updating weights
             if (!same) {
-                updateWeights(sen, classifier, predictedTags, featSize, predictedTags.length,unknownIndex);
+                updateWeights(sen, classifier, predictedTags, featSize, predictedTags.length, unknownIndex);
             }
         }
         return corr;
@@ -239,6 +250,52 @@ public class Trainer {
         System.out.print("dev exact match is " + format.format(exact_match) + "\n");
     }
 
+
+    private static void devIter(ArrayList<Sentence> dev_sentences, String modelPath, AveragedPerceptron perceptron) throws Exception{
+        Tagger tagger=new Tagger(modelPath);
+        tagger.perceptron=perceptron;
+        System.out.print("\ndecoding...");
+        int corr = 0;
+        int all = 0;
+        int exact = 0;
+
+        long start = System.currentTimeMillis();
+
+        for (int s = 0; s < dev_sentences.size(); s++) {
+            Sentence sen = dev_sentences.get(s);
+            if ((s + 1) % 1000 == 0)
+                System.out.print((s + 1) + " ");
+            int[] predictedTags = tagger.tag(sen,  false,false);
+
+            assert (predictedTags.length == sen.tags.length);
+
+            boolean same = true;
+            for (int t = 0; t < predictedTags.length; t++) {
+                int predicted = predictedTags[t];
+                int gold = sen.tags[t];
+                if (predicted == gold) {
+                    corr++;
+                } else {
+                    same = false;
+                }
+                all++;
+            }
+            if (same)
+                exact++;
+        }
+        long end = System.currentTimeMillis();
+        DecimalFormat format = new DecimalFormat("##.00");
+
+        float duration = (float) (end - start) / dev_sentences.size();
+        System.out.print("\nduration " + format.format(duration) + " ms per sentence\n");
+
+        float accuracy = (float) corr * 100.0f / all;
+        float exact_match = (float) exact * 100.0f / dev_sentences.size();
+        System.out.print("dev accuracy is " + format.format(accuracy) + "\n");
+        System.out.print("dev exact match is " + format.format(exact_match) + "\n");
+    }
+
+    
     public static void saveModel(IndexMaps maps, InfoStruct info, String modelPath) throws Exception {
         FileOutputStream fos = new FileOutputStream(modelPath);
         GZIPOutputStream gz = new GZIPOutputStream(fos);
