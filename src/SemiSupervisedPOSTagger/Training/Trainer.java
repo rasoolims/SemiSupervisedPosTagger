@@ -64,7 +64,7 @@ public class Trainer {
 
             if (dev_sentences.size() > 0) {
                 devIter(dev_sentences, options.modelPath + ".iter_" + iter);
-                devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
+               // devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
             }
         }
     }

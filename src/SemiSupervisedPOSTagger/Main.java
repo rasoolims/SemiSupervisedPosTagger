@@ -1,6 +1,7 @@
 package SemiSupervisedPOSTagger;
 
 import SemiSupervisedPOSTagger.Structures.Options;
+import SemiSupervisedPOSTagger.Structures.UpdateMode;
 import SemiSupervisedPOSTagger.Tagging.Tagger;
 import SemiSupervisedPOSTagger.Training.Trainer;
 
@@ -17,7 +18,13 @@ public class Main {
 
         System.out.println(options);
 
-      //  options.train=true;
+        /*
+        options.train=true;                  options.train=true;
+        options.trainPath="/tmp/train.tag";
+        options.devPath="/tmp/train.tag";
+        options.modelPath="/tmp/model";
+        options.updateMode= UpdateMode.early;
+          */
        // options.trainPath="/tmp/en2de.tag.projection.full";
       //  options.modelPath="/tmp/model";
         
