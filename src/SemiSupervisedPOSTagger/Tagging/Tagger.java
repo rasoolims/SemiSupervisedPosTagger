@@ -107,7 +107,7 @@ public class Tagger {
             ln++;
             if(ln%1000==0)
                 System.out.print(ln+"...");
-            String[] flds=line.trim().split(" ");
+            String[] flds=line.trim().replace("　","").split(" ");
             ArrayList<String> words=new ArrayList<String>(flds.length);
             for(int i=0;i<flds.length;i++){
                 if(flds[i].trim().length()==0)

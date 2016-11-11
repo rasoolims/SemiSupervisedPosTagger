@@ -25,19 +25,19 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Trainer {
     public static void train(final Options options, final int featSize,String tagDictionaryPath) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim,options.clusterFile,tagDictionaryPath, Sentence.brownSize);
-        int unknownIndex=-1;
-       // if(maps.stringMap.containsKey("***"))
-         //   unknownIndex=maps.stringMap.get("***");
-        
-        
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
+        int unknownIndex = -1;
+        // if(maps.stringMap.containsKey("***"))
+        //   unknownIndex=maps.stringMap.get("***");
+
+
         // reading train and dev sentences to a vector
         ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps, options.delim);
         ArrayList<Sentence> dev_sentences = new ArrayList<Sentence>();
         if (options.devPath != "")
             dev_sentences = FileManager.readSentences(options.devPath, maps, options.delim);
 
-        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize,maps.getTagDictionary());
+        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize, maps.getTagDictionary());
         for (int iter = 1; iter <= options.trainingIter; iter++) {
             System.out.print("\niter: " + iter + "\n");
             int corr = 0;
@@ -47,7 +47,7 @@ public class Trainer {
                 Sentence sen = train_sentences.get(s);
                 if ((s + 1) % 1000 == 0)
                     System.out.print((s + 1) + " ");
-                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, featSize, options.updateMode,unknownIndex,options.C);
+                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, featSize, options.updateMode, unknownIndex, options.C);
                 all += sen.words.length;
                 classifier.incrementIteration();
             }
@@ -55,18 +55,24 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + format.format(accuracy) + "\n");
 
-            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight(),true);
-            InfoStruct info_no_avg = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth,maps.getTagDictionary(),classifier.getAvgPenalizerWeight(),false);
-            System.out.print("saving the model...");
-            saveModel(maps, info, options.modelPath + ".iter_" + iter);
-            saveModel(maps, info_no_avg, options.modelPath + ".no_avg.iter_" + iter);
-            System.out.print("done!\n");
+            if (false) {
+                InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
+                InfoStruct info_no_avg = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), false);
+                System.out.print("saving the model...");
+                saveModel(maps, info, options.modelPath + ".iter_" + iter);
+                saveModel(maps, info_no_avg, options.modelPath + ".no_avg.iter_" + iter);
+                System.out.print("done!\n");
 
-            if (dev_sentences.size() > 0) {
-                devIter(dev_sentences, options.modelPath + ".iter_" + iter);
-               // devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
+                if (dev_sentences.size() > 0) {
+                    devIter(dev_sentences, options.modelPath + ".iter_" + iter);
+                    // devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
+                }
             }
         }
+        InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
+        System.out.print("saving the model...");
+        saveModel(maps, info, options.modelPath);
+        System.out.print("done!\n");
     }
 
     private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex, final   double C) {

@@ -18,16 +18,6 @@ public class Main {
 
         System.out.println(options);
 
-        /*
-        options.train=true;                  options.train=true;
-        options.trainPath="/tmp/train.tag";
-        options.devPath="/tmp/train.tag";
-        options.modelPath="/tmp/model";
-        options.updateMode= UpdateMode.early;
-          */
-       // options.trainPath="/tmp/en2de.tag.projection.full";
-      //  options.modelPath="/tmp/model";
-        
         if (options.train && options.trainPath != "" && options.modelPath != "")
             Trainer.train(options, 32,options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
