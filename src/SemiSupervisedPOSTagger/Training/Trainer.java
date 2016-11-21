@@ -38,6 +38,7 @@ public class Trainer {
             dev_sentences = FileManager.readSentences(options.devPath, maps, options.delim);
 
         AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize, maps.getTagDictionary());
+        double bestDevAcc = 0;
         for (int iter = 1; iter <= options.trainingIter; iter++) {
             System.out.print("\niter: " + iter + "\n");
             int corr = 0;
@@ -55,24 +56,28 @@ public class Trainer {
             float accuracy = (float) corr * 100.0f / all;
             System.out.print("\ntrain accuracy: " + format.format(accuracy) + "\n");
 
-            if (false) {
-                InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
-                InfoStruct info_no_avg = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), false);
-                System.out.print("saving the model...");
-                saveModel(maps, info, options.modelPath + ".iter_" + iter);
-                saveModel(maps, info_no_avg, options.modelPath + ".no_avg.iter_" + iter);
-                System.out.print("done!\n");
+            if (dev_sentences.size() > 0) {
+                InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier
+                        .getAvgPenalizerWeight(), true);
+                saveModel(maps, info, options.modelPath + ".tmp" + iter);
+                double acc = devIter(dev_sentences, options.modelPath + ".tmp");
 
-                if (dev_sentences.size() > 0) {
-                    devIter(dev_sentences, options.modelPath + ".iter_" + iter);
-                    // devIter(dev_sentences, options.modelPath + ".no_avg.iter_" + iter);
+                if (acc > bestDevAcc) {
+                    bestDevAcc = acc;
+                    System.out.print("Saving the new best model based on dev data...");
+                    saveModel(maps, info, options.modelPath);
                 }
+                System.out.print("done!\n");
             }
         }
-        InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
-        System.out.print("saving the model...");
-        saveModel(maps, info, options.modelPath);
-        System.out.print("done!\n");
+
+        if (dev_sentences.size()>0) {
+            InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
+
+            System.out.print("saving the model...");
+            saveModel(maps, info, options.modelPath);
+            System.out.print("done!\n");
+        }
     }
 
     private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex, final   double C) {
@@ -213,7 +218,7 @@ public class Trainer {
         }
     }
 
-    private static void devIter(ArrayList<Sentence> dev_sentences, String modelPath) throws Exception{
+    private static double devIter(ArrayList<Sentence> dev_sentences, String modelPath) throws Exception{
         Tagger tagger=new Tagger(modelPath);
         System.out.print("\ndecoding...");
         int corr = 0;
@@ -254,6 +259,7 @@ public class Trainer {
         float exact_match = (float) exact * 100.0f / dev_sentences.size();
         System.out.print("dev accuracy is " + format.format(accuracy) + "\n");
         System.out.print("dev exact match is " + format.format(exact_match) + "\n");
+        return accuracy;
     }
 
 
