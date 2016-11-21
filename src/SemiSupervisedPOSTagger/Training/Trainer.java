@@ -59,7 +59,7 @@ public class Trainer {
             if (dev_sentences.size() > 0) {
                 InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier
                         .getAvgPenalizerWeight(), true);
-                saveModel(maps, info, options.modelPath + ".tmp" + iter);
+                saveModel(maps, info, options.modelPath + ".tmp");
                 double acc = devIter(dev_sentences, options.modelPath + ".tmp");
 
                 if (acc > bestDevAcc) {
